@@ -1,0 +1,421 @@
+#!/bin/bash
+# bash is fun :D
+
+helper1=0 # helper variable for seeing if we need to deal with cat piping and stdin
+helper2="$#" # helper variable for tracking number of arguements before being adjusted with the line at the bottom of this file which like shifts the parameters variables back one, 1 goes to 2 and so on
+datafilepath="datafileUno" # store string datafileUno as datafilepath variable
+helper3=0
+datafilepath2="datafileDos"
+
+if [ "$#" = "1" ] && [ $1 == "dims" ]
+then
+	helper1=3 # use helper variable, the number three is irrelevant 
+	cat > "$datafilepath" # make a file basically
+elif [ "$#" = "2" ] && [ $1 == "dims" ] # two arguements
+then
+	datafilepath=$2
+#elif [[ "$1" -eq "add" ]] && [ "$#" = "1" ]
+#then
+#	echo error_with_add_0_arguements_error 1>&2
+#	rm -f ./datafileDos
+#	rm -f ./datafileUno
+#	exit 1
+fi
+
+dims(){ # at first, I mistakenly put in the the top level if else staterment 
+	if [[ "$helper1" -eq 0 ]] # then later on it was required due to
+	then # the fact that I later put in thingse that madke them neccesary
+		if [[ "$#" -gt  1 ]]
+		then
+			echo incorrect number of parameters 1>&2
+			rm -f ./datafileDos
+			rm -f ./datafileUno
+			exit 1
+		elif [[ -r "$1" ]]
+		then
+			jj=0
+			ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+			while read myLine
+			do 
+				jj=`expr $jj + 1`
+				for i in $myLine
+				do
+					ii=`expr $ii + 1`
+				done
+			done < $datafilepath
+			ii=`expr $ii / $jj`
+			echo "$jj" "$ii"
+			rm -f ./datafileDos
+			rm -f ./datafileUno
+			exit 0
+		else
+			echo inaccessible file or some other issue with -r 1>&2
+			rm -f ./datafileDos
+			rm -f ./datafileUno
+			exit 1
+		fi
+	else #3 the first one was for if not catted and then now this one below is designed for if catted true
+		if [[ "$helper2" -gt  2 ]]
+		then
+			echo incorrect number of parameters yo 1>&2
+			rm -f ./datafileUno
+			rm -f ./datafileDos
+			exit 1
+		elif [[ -r "$datafilepath" ]]
+		then
+			jj=0
+			ii=0
+			while read myLine
+			do 
+				jj=`expr $jj + 1`
+				for i in $myLine
+				do
+					ii=`expr $ii + 1`
+				done
+			done < $datafilepath
+			# i=`expr $i - 1`
+			ii=`expr $ii / $jj`
+			echo "$jj" "$ii"
+			rm -f ./datafileUno
+			rm -f ./datafileDos
+			exit 0
+		else
+			echo inaccessible file or some other issue with -r $1
+			rm -f ./datafileUno
+			rm -f ./datafileDos
+			exit 1
+		fi
+	fi
+}
+
+transpose(){
+	if [[ "$#" -ne "1" ]]
+	then
+		echo yo incorrect number of parameters yo 1>&2
+		rm -f ./datafileUno
+		rm -f ./datafileDos
+		exit 1
+	elif [[ -r "$1" ]]
+	then
+# ----------------- getting dims start
+		jj=0
+		ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		while read myLine
+		do 
+			jj=`expr $jj + 1`
+			for iiii in $myLine
+			do
+				ii=`expr $ii + 1`
+			done
+		done < $1
+		ii=`expr $ii / $jj`
+		
+		tempCol="tempcolfile"
+		tempRow="temprowfile"
+
+		indexH=1
+		
+		cut -f $indexH $1 > $tempCol
+		indexH=`expr $indexH + 1`
+		cat $tempCol | tr '\n' '\t' > $tempRow
+		truncate -s-1 $tempRow
+		echo >> $tempRow
+		for (( ijk=1; ijk<${ii}; ijk++ ));
+		do
+			cut -f $indexH $1 > $tempCol
+			cat $tempCol | tr '\n' '\t' >> $tempRow
+			truncate -s-1 $tempRow
+			echo >> $tempRow
+			indexH=`expr $indexH + 1`
+		done
+
+		cat $tempRow
+		
+		rm -f ./tempcolfile
+		rm -f ./temprowfile
+		rm -f ./datafileDos
+		rm -f ./datafileUno
+		exit 0
+	else
+		echo inaccessible file or some other issue with -r or!!!! dimensions!!!! 1>&2
+		rm -f ./datafileUno
+		rm -f ./datafileDos
+		exit 1
+	fi
+}
+
+mean(){
+	if [[ "$#" -ne "1" ]]
+	then
+		echo yo incorrect number of parameters yo 1>&2
+		rm -f ./datafileUno
+		rm -f ./datafileDos
+		exit 1
+	elif [[ -r "$1" ]]
+	then
+# ----------------- getting dims start
+		jj=0
+		ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		while read myLine
+		do 
+			jj=`expr $jj + 1`
+			for iiii in $myLine
+			do
+				ii=`expr $ii + 1`
+			done
+		done < $1
+		ii=`expr $ii / $jj`
+		
+		tempCol="tempcolfile"
+		tempRow="temprowfile"
+		tempCol2="tempcol2file"
+
+		indexH=1
+		
+		cut -f $indexH $1 > $tempCol
+		indexH=`expr $indexH + 1`
+		cat $tempCol | tr '\n' '\t' > $tempRow
+		truncate -s-1 $tempRow
+		echo >> $tempRow
+		for (( ijk=1; ijk<${ii}; ijk++ ));
+		do
+			cut -f $indexH $1 > $tempCol
+			cat $tempCol | tr '\n' '\t' >> $tempRow
+			truncate -s-1 $tempRow
+			echo >> $tempRow
+			indexH=`expr $indexH + 1`
+		done
+
+		while read tLine
+		do
+			yt=0
+			dri=0
+			for mno in $tLine
+			do
+				yt=`expr $yt + $mno`
+				dri=`expr $dri + 1`
+			done
+
+			if [[ "$yt" -gt "0" ]]
+			then
+				yt=$(( ( ( $yt + ( $dri / 2 ) ) / $dri ) ))
+			else
+				yt=$(( ( ( $yt - ( $dri / 2 ) ) / $dri ) ))
+			fi
+
+			echo "$yt" >> $tempCol2
+		done < $tempRow
+		
+		cat $tempCol2 | tr '\n' '\t' > $tempRow
+		truncate -s-1 $tempRow
+		echo >> $tempRow
+		cat $tempRow
+
+		rm -f ./tempcolfile
+		rm -f ./tempcol2file
+		rm -f ./temprowfile
+		rm -f ./datafileDos
+		rm -f ./datafileUno
+		exit 0
+	else
+		echo inaccessible file or some other issue with -r or!!!! dimensions!!!! 1>&2
+		rm -f ./datafileUno
+		rm -f ./datafileDos
+		exit 1
+	fi
+}
+
+add(){
+	if [[ "$#" -ne 2 ]]
+	then
+		echo yoincorrectnumberofparametersyo 1>&2
+		rm -f ./datafileUno
+		rm -f ./datafileDos
+		exit 1
+	elif [[ -r "$1" ]] && [[ -r "$2" ]]
+	then
+# ----------------- getting dims start
+		jj=0
+		ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		while read myLine
+		do 
+			jj=`expr $jj + 1`
+			for iiii in $myLine
+			do
+				ii=`expr $ii + 1`
+			done
+		done < $1
+		ii=`expr $ii / $jj`
+
+
+		jj2=0
+		ii2=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		while read myLine2
+		do 
+			jj2=`expr $jj2 + 1`
+			for iiii2 in $myLine2
+			do
+				ii2=`expr $ii2 + 1`
+			done
+		done < $2
+		ii2=`expr $ii2 / $jj2`
+# ----------------- gettings dims DONE
+# -----------------------------------
+# ------------------- checking dims
+		if [[ "$ii" -ne "$ii2" ]] || [[ "$jj" -ne "$jj2" ]]
+		then
+			echo wrongs dims on add 1>&2
+			rm -f ./datafileUno
+			rm -f ./datafileDos
+			exit 1
+		fi
+# ---------------------- Done with that
+
+		cat $1 > "$datafilepath"
+		cat $2 > "$datafilepath2"
+
+		audiput=""
+
+		while read var1 <&4 && read var2 <&5
+		do
+			audiput=""
+			pleaseGod=0
+			for ia in $var1
+			do
+				pleaseGod2=0
+				for ib in $var2
+				do
+					if [[ "$pleaseGod" -eq "$pleaseGod2" ]]
+					then
+						aaa=0
+						aaa=`expr $ia + $ib`
+						audiput="${audiput}$aaa\t"
+						break
+					fi
+					pleaseGod2=$((pleaseGod2+1))
+				done
+				pleaseGod=$((pleaseGod+1))
+			done
+			audiput=${audiput%?}
+			audiput=${audiput%?}
+			echo -e "$audiput"
+		done 4<datafileUno 5<datafileDos
+		
+		rm -f ./datafileDos
+		rm -f ./datafileUno
+		exit 0
+	else
+		echo inaccessible file or some other issue with -r or!!!! dimensions!!!! 1>&2
+		rm -f ./datafileUno
+		rm -f ./datafileDos
+		exit 1
+	fi
+}
+
+multiply(){
+	if [[ "$#" -ne 2 ]]
+	then
+		echo yoincorrectnumberofparametersyo 1>&2
+		rm -f ./datafileUno
+		rm -f ./datafileDos
+		exit 1
+	elif [[ -r "$1" ]] && [[ -r "$2" ]]
+	then
+# ----------------- getting dims start
+		jj=0
+		ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		while read myLine
+		do 
+			jj=`expr $jj + 1`
+			for iiii in $myLine
+			do
+				ii=`expr $ii + 1`
+			done
+		done < $1
+		ii=`expr $ii / $jj`
+
+
+		jj2=0
+		ii2=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		while read myLine2
+		do 
+			jj2=`expr $jj2 + 1`
+			for iiii2 in $myLine2
+			do
+				ii2=`expr $ii2 + 1`
+			done
+		done < $2
+		ii2=`expr $ii2 / $jj2`
+# ----------------- gettings dims DONE
+# -----------------------------------
+# ------------------- checking dims
+		if [[ "$ii" -ne "$jj2" ]]
+		then
+			echo wrongs dims on multiply 1>&2
+			rm -f ./datafileUno
+			rm -f ./datafileDos
+			exit 1
+		fi
+# ---------------------- Done with that
+
+		#this my best attempt that I cant get in before the second due date penalty
+		#this is what I am tring to do 
+		#adds all releveant numbers to a two arrays
+		# matirx A is on indicese 01 to n-1 where n is number of elements in matrix A or ie the sides times each other
+		# adding line by line elemenent by elements so it goes [1]=a11 [2]=a12 
+		# I am HOPING that this will allow me to use straight forward logic to echo strings I fill
+: '	
+
+		meArrayA=()
+		meArrayA+=0
+		while read mA
+		do
+			for mai in $mA
+			do
+				meArrayA+=($mai)
+			done
+		done < $1
+
+		echo "${meArrayA[*]}"
+
+
+		meArrayB=()
+		meArrayB+=0
+		while read mB
+		do
+			for mbi in $mB
+			do
+				meArrayB+=($mbi)
+			done
+		done < $1
+
+		echo "${meArrayB[*]}"
+
+		total=`expr $ii2 * $jj `
+		
+		audiput=""
+		for (( tcs=0; tcs<${total}; tcs++ ));
+		do
+			aaa=0
+			for
+			do
+				aaa=`expr $ia + $ib`
+				audiput="${audiput}$aaa\t"
+			done
+		done
+		audiput=${audiput%?}
+		audiput=${audiput%?}
+		echo -e "$audiput"
+'
+		rm -f ./datafileDos
+		rm -f ./datafileUno
+		exit 0
+	else
+		echo inaccessible file or some other issue with -r or!!!! dimensions!!!! 1>&2
+		rm -f ./datafileUno
+		rm -f ./datafileDos
+		exit 1
+	fi
+}
+
+$1 "${@:2}"
