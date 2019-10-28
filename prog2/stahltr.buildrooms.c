@@ -1,4 +1,6 @@
 // BUILD ROOMS
+//
+// CITATION: used a lot of code from class, as usuall, including the sugested way to build the graph
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,35 +37,26 @@ char dirTitle[40];
 
 // This holds the strings written to files
 char stringToWrite[30];
-/*
-// Returns 1 if graph full 0 if not
-int IsGraphFulL(void){
-	return 0;
+
+// Returns 1 if graph full, 0 if not
+int IsGraphFull(void){
+	int iter;
+	iter = 0;
+	for(iter; iter < 10 ;iter++){
+		if(used[iter] != 99){// Then it has been used at least so we need to see if it has atleast 3
+			// Now we should check if we can return 0 if current room has not enough rooms
+			// which is being less than 13    ,  != 13 14 15 or 16
+			if(used[iter] < 13){
+				return 0;
+			}
+		}
+		// otherwise we do not care about this index of used,so next
+	}
+	return 1;// IF we got here then every room  had 3 or more connections and thus the graph is sufficient AKA 'full'
+	// OR the function might have been used on a bad used array, meaning one that is not possible according to how we
+	// Made this function and the rest of the program as a whole
 }
 
-// Adds a random valid connection from a random room to another one, both that accept the connection
-void AddRandomConnection(void){
-	// These ints represent the rooms, I did not use structs here
-	int A;
-	int B;
-
-	while(1){// Get A to equal the indice
-		A = GetRandomRoom();
-
-		if(CanAddConnectionFrom(A) == 1)
-			break;
-	}
-
-	do
-	{
-		B = GetRandomRoom();
-	}
-	while(CanAddConnectionFrom(B) == 0 || A == B || ConnectionAlreadyExists(A, B) == 1);
-
-	ConnectRoom(A, B);
-	ConnectRoom(B, A);
-}
-*/
 // Returns a random room, AKA a random number from 0 -9 representing the indices of used which is == 3 
 // AKA an indice matching the indice used of the letters array that was used to make a room 
 // and thus the room name and all info on a room that was made, previosly to were this is used that is below
@@ -79,7 +72,7 @@ int GetRandomRoom(void){
 	//based on it being the index of used where the value represents that index value being changed upon use
 	return randNumbA;
 }
-/*
+
 // Returns 1 if a connection can be added from room x
 // That is returns if x representing indice of used where array equals 3 which represent a room with no connections yet
 // Or 7 meaning it has (a) connection(s), but not too many
@@ -87,22 +80,135 @@ int GetRandomRoom(void){
 // Then is returns 0 for false
 // < 6 connections
 int CanAddConnectionFrom(int x){
-
+	if(used[x] < 16){//then it must be 10 11 12 13 14 15 meaning it has been used and has 0 1 2 3 4 5 rooms now
+		return 1;
+	}
+	return 0;
 }
 
 // Returns 1 if a connection to room y is in room x file
 // All connections are added in pairs in both directions so need only check on direction
 int ConnectionAlreadyExists(int x, int y){
+	// Basically if a file containts ": A" then it has a connection to roomA
+	// And so on for B and what not
 
+	// get the room we are printing about	
+	char letterRoom = letters[y];
+	
+	// file descriptor for reading and lseeking
+	int file_d;
+	
+	// make fresh the correct fileTitle
+	sprintf(fileTitle, "./%s/", dirTitle);
+	char file_n2[] = "roomX";
+	file_n2[4] = letters[y];
+	strcat(fileTitle, file_n2);
+
+	ssize_t nread;
+	char readBuffer[5000]; // We are going to read in the entire file at once
+
+	file_d = open(fileTitle, O_RDONLY);
+
+	memset(readBuffer, '\0', sizeof(readBuffer));
+	lseek(file_d, 0, SEEK_SET);
+
+	struct stat st;
+	stat(fileTitle, &st);
+	int sizeFile;
+	sizeFile = st.st_size;
+
+	// Now we want to read the entire file, which is one we can always assume to be less than 5000 bytes
+	// By using the size in bytes of the file which just got above
+	nread = read(file_d, readBuffer, sizeFile);
+
+	int iterator;
+	iterator = 0;
+	// So, for every byte in the file we are going to see if it is a :
+	// and then if it is followed by a space and then additionally the letter we are looking for
+	for(iterator; iterator < sizeFile ;iterator++){
+		//check for :
+		if(readBuffer[iterator] == ':'){
+			// then if so check for space
+			if(readBuffer[(iterator+1)] == ' '){
+				// if so see if letter we are looking for
+				if(readBuffer[(iterator+2)] == letterRoom){
+					// if so then we have determinged there is a connection
+					// return 1
+					close(file_d);
+					return 1;
+				}
+			}
+		}
+	}
+	
+	close(file_d);
+	// if we get here then no connection
+	return 0;
 }
 
 //
 void ConnectRoom(int x, int y){
+	//Checking if this can be done is taken care of in addrandomroomconnection function that uses this
+
+	// We are printing into room x file coonection to y
+	// The one place I use this it is called in a pair A,B then B,A
+
+	// Make string to print
+	int connectionNumber;
+	// AND MOST IMPORTANTLY
+	// we need to increment used at x
+	used[x] = used[x] + 1;
+	//Make sure there is not something wrong
+	if((used[x] > 20)||(used[x] < 10)){
+		printf("!! Uh Oh !! ERROR something went wrong inside ConnectRoom");
+		return;
+	}
+	connectionNumber = used[x];
+	connectionNumber = connectionNumber - 10;
+	sprintf(stringToWrite, "CONNECTION %d: %c\n", connectionNumber, letters[y]);
+
+	// get the right fileTitle
+	sprintf(fileTitle, "./%s/", dirTitle);
+	char file_n2[] = "roomX";
+	file_n2[4] = letters[y];
+	strcat(fileTitle, file_n2);
+
+	// write string to file
+	ssize_t nwritten;	
+	int file_d2;
+	file_d2 = open(fileTitle, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	lseek(file_d2, 0, SEEK_END);
+	nwritten = write(file_d2, stringToWrite, strlen(stringToWrite) * sizeof(char));
+	close(file_d2);
+
+
 	return;
 }
 
 // I do not need is same because is same is literally ==
-*/
+
+// Adds a random valid connection from a random room to another one, both that accept the connection
+void AddRandomConnection(void){
+	// These ints represent the rooms, I did not use structs here
+	int A;
+	int B;
+
+	while(1){// Get A to equal the indice
+		A = GetRandomRoom();
+		if(CanAddConnectionFrom(A) == 1)
+			break;
+	}
+
+	do{
+		B = GetRandomRoom();
+	}
+	while(CanAddConnectionFrom(B) == 0 || A == B || ConnectionAlreadyExists(A, B) == 1);
+
+	ConnectRoom(A, B);
+	ConnectRoom(B, A);
+}
+
+
 int main (void){
 	// Might as well use mostly global variables for simplicity and to avoid all of those issues later
 	// And security is not a concern here, let alone the minor performance stuff that doesnt matter either
@@ -198,31 +304,116 @@ int main (void){
 	// Set a random room to be start
 	int startR;
 	startR = GetRandomRoom();
-	sprintf(stringToWrite, "ROOM TYPE: END_ROOM\n");
+	sprintf(stringToWrite, "ROOM TYPE: START_ROOM\n");
 	sprintf(fileTitle, "./%s/", dirTitle);
 	file_n[4] = letters[startR];
 	strcat(fileTitle, file_n);
 	file_d = open(fileTitle, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
 	lseek(file_d, 0, SEEK_END);
 	nwritten = write(file_d, stringToWrite, strlen(stringToWrite) * sizeof(char));
+	close(file_d);
 	
 	// Record this
 	used[startR] = 77;	
 
-	// Pick a random room, make sure it was not set to be start, if so pick again
-	//
-	// Set it to be end
-	//
-	// Record this
-	//
-	// for 5 times set a room to be middle
-	// each time pick random numbers until you find one that was not set to be end or start
-	// when you pick one that is unset do so
-	//
-	// then record this
-	//
-	// repeat 5 times
+	// Pick a random room, make sure it was not used for start
+	int endR;
+	endR = GetRandomRoom();
+	while(endR == startR){
+		endR = GetRandomRoom();
+	}
 
-	// Finish and return 0 because all error prone steps have if statements to validate and if not return 1
+	// Set it to be end
+	sprintf(stringToWrite, "ROOM TYPE: END_ROOM\n");
+	sprintf(fileTitle, "./%s/", dirTitle);
+	file_n[4] = letters[endR];
+	strcat(fileTitle, file_n);
+	file_d = open(fileTitle, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	lseek(file_d, 0, SEEK_END);
+	nwritten = write(file_d, stringToWrite, strlen(stringToWrite) * sizeof(char));
+	close(file_d);
+
+	// Record this
+	used[endR] = 77;
+	
+	// for 5 times set a room to be middle
+	// each time pick random numbers until you find one that was not set to be end or start,
+	// and then end start of mid1, and then mid1 mid2 end start, and so five times
+	// when you pick one that is unset do so
+	int mid1, mid2, mid3, mid4, mid5;
+	
+	mid1 = GetRandomRoom();
+	while((mid1 == startR)||(mid1 == endR)){// this is the main line of logc that changes each time below and grows
+		mid1 = GetRandomRoom();// the only thing that changes each time below is the use of mid1 or mid2 and so on
+	}
+	sprintf(stringToWrite, "ROOM TYPE: MID_ROOM\n");
+	sprintf(fileTitle, "./%s/", dirTitle);
+	file_n[4] = letters[mid1];
+	strcat(fileTitle, file_n);
+	file_d = open(fileTitle, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	lseek(file_d, 0, SEEK_END);
+	nwritten = write(file_d, stringToWrite, strlen(stringToWrite) * sizeof(char));
+	close(file_d);
+	// Record this
+	used[mid1] = 77;
+	
+	mid2 = GetRandomRoom();
+	while((mid2 == startR)||(mid2 == endR)||(mid2 == mid1)){// I just realized how to do this cleaner with more 
+		mid2 = GetRandomRoom();				// functions but this work fine so I will keep it
+	}
+	sprintf(stringToWrite, "ROOM TYPE: MID_ROOM\n");
+	sprintf(fileTitle, "./%s/", dirTitle);
+	file_n[4] = letters[mid2];
+	strcat(fileTitle, file_n);
+	file_d = open(fileTitle, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	lseek(file_d, 0, SEEK_END);
+	nwritten = write(file_d, stringToWrite, strlen(stringToWrite) * sizeof(char));
+	close(file_d);
+	used[mid2] = 77;
+	
+	mid3 = GetRandomRoom();
+	while((mid3 == startR)||(mid3 == endR)||(mid3 == mid1)||(mid3 == mid2)){
+		mid3 = GetRandomRoom();
+	}
+	sprintf(stringToWrite, "ROOM TYPE: MID_ROOM\n");
+	sprintf(fileTitle, "./%s/", dirTitle);
+	file_n[4] = letters[mid3];
+	strcat(fileTitle, file_n);
+	file_d = open(fileTitle, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	lseek(file_d, 0, SEEK_END);
+	nwritten = write(file_d, stringToWrite, strlen(stringToWrite) * sizeof(char));
+	close(file_d);
+	used[mid3] = 77;
+
+	mid4 = GetRandomRoom();
+	while((mid4 == startR)||(mid4 == endR)||(mid4 == mid1)||(mid4 == mid2)||(mid4 == mid3)){
+		mid4 = GetRandomRoom();
+	}
+	sprintf(stringToWrite, "ROOM TYPE: MID_ROOM\n");
+	sprintf(fileTitle, "./%s/", dirTitle);
+	file_n[4] = letters[mid4];
+	strcat(fileTitle, file_n);
+	file_d = open(fileTitle, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	lseek(file_d, 0, SEEK_END);
+	nwritten = write(file_d, stringToWrite, strlen(stringToWrite) * sizeof(char));
+	close(file_d);
+	used[mid4] = 77;
+
+	mid5 = GetRandomRoom();
+	while((mid5 == startR)||(mid5 == endR)||(mid5 == mid1)||(mid5 == mid2)||(mid5 == mid3)||(mid5 == mid4)){
+		mid5 = GetRandomRoom();
+	}
+	sprintf(stringToWrite, "ROOM TYPE: MID_ROOM\n");
+	sprintf(fileTitle, "./%s/", dirTitle);
+	file_n[4] = letters[mid5];
+	strcat(fileTitle, file_n);
+	file_d = open(fileTitle, O_RDWR | O_APPEND, S_IRUSR | S_IWUSR);
+	lseek(file_d, 0, SEEK_END);
+	nwritten = write(file_d, stringToWrite, strlen(stringToWrite) * sizeof(char));
+	close(file_d);
+	used[mid5] = 77;
+	
+
+	// Finish and return 0 because all error prone steps have if statements to validate and if not return 1 when needed
 	return 0;	
 }
