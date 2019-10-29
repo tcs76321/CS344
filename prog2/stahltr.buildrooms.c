@@ -194,17 +194,28 @@ void AddRandomConnection(void){
 	int B;
 
 	while(1){// Get A to equal the indice
+		printf("making A a random room\n");
 		A = GetRandomRoom();
+		printf("check if can add connect from A, trying again other wise\n");
 		if(CanAddConnectionFrom(A) == 1)
 			break;
 	}
 
-	do{
+	//do{
+	//	printf("making B a random room that qualifies\n");
+	//	B = GetRandomRoom();
+	//}
+	//while((CanAddConnectionFrom(B) == 0) || (A == B) || (ConnectionAlreadyExists(A, B) == 1));
+	while(1){
+		printf("making B a random room that qualifies\n");
 		B = GetRandomRoom();
+		if(((B != A)&&(CanAddConnectionFrom(B) == 1))&&(ConnectionAlreadyExists(A, B) == 0))
+			break;
 	}
-	while(CanAddConnectionFrom(B) == 0 || A == B || ConnectionAlreadyExists(A, B) == 1);
-
+	
+	printf("trying to connect A and B\n");
 	ConnectRoom(A, B);
+	printf("trying to connect B and A\n");
 	ConnectRoom(B, A);
 }
 
@@ -297,9 +308,11 @@ int main (void){
 	}
 
 	// Create all connections in graph
-//	while(IsGraphFull() == 0){
-//		AddRandomConnection();
-//	}
+	while(IsGraphFull() == 0){
+		printf("graph is not full\n");
+		printf("adding random connection\n");
+		AddRandomConnection();
+	}
 
 	// Set a random room to be start
 	int startR;
