@@ -91,6 +91,8 @@ int CanAddConnectionFrom(int x){
 int ConnectionAlreadyExists(int x, int y){
 	// Basically if a file containts ": A" then it has a connection to roomA
 	// And so on for B and what not
+	// EXCEPT FOR THE ROOM NAME: X
+	// SO I ADDED ALSO A BREAK to make sure we skip this one
 
 	// get the room we are printing about	
 	char letterRoom = letters[y];
@@ -127,11 +129,14 @@ int ConnectionAlreadyExists(int x, int y){
 	// and then if it is followed by a space and then additionally the letter we are looking for
 	for(iterator; iterator < sizeFile ;iterator++){
 		//check for :
-		if(readBuffer[iterator] == ':'){
+		if(readBuffer[iterator] == 'E'){// this is the part for ROOM NAME: A
+			break;
+		}
+		if(readBuffer[(iterator+1)] == ':'){
 			// then if so check for space
-			if(readBuffer[(iterator+1)] == ' '){
+			if(readBuffer[(iterator+2)] == ' '){
 				// if so see if letter we are looking for
-				if(readBuffer[(iterator+2)] == letterRoom){
+				if(readBuffer[(iterator+3)] == letterRoom){
 					// if so then we have determinged there is a connection
 					// return 1
 					close(file_d);
