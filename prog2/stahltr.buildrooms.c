@@ -130,7 +130,7 @@ int ConnectionAlreadyExists(int x, int y){
 	for(iterator; iterator < sizeFile ;iterator++){
 		//check for :
 		if(readBuffer[iterator] == 'E'){// this is the part for ROOM NAME: A
-			break;
+			continue;
 		}
 		if(readBuffer[(iterator+1)] == ':'){
 			// then if so check for space
