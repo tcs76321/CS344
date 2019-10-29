@@ -103,7 +103,7 @@ int ConnectionAlreadyExists(int x, int y){
 	// make fresh the correct fileTitle
 	sprintf(fileTitle, "./%s/", dirTitle);
 	char file_n2[] = "roomX";
-	file_n2[4] = letters[y];
+	file_n2[4] = letters[x];
 	strcat(fileTitle, file_n2);
 
 	ssize_t nread;
@@ -151,7 +151,7 @@ int ConnectionAlreadyExists(int x, int y){
 	return 0;
 }
 
-//
+// printing into file x connection to letter y
 void ConnectRoom(int x, int y){
 	//Checking if this can be done is taken care of in addrandomroomconnection function that uses this
 
@@ -175,7 +175,7 @@ void ConnectRoom(int x, int y){
 	// get the right fileTitle
 	sprintf(fileTitle, "./%s/", dirTitle);
 	char file_n2[] = "roomX";
-	file_n2[4] = letters[y];
+	file_n2[4] = letters[x];
 	strcat(fileTitle, file_n2);
 
 	// write string to file
@@ -206,17 +206,17 @@ void AddRandomConnection(void){
 			break;
 	}
 
-	//do{
-	//	printf("making B a random room that qualifies\n");
-	//	B = GetRandomRoom();
-	//}
-	//while((CanAddConnectionFrom(B) == 0) || (A == B) || (ConnectionAlreadyExists(A, B) == 1));
-	while(1){
+	do{
 		printf("making B a random room that qualifies\n");
 		B = GetRandomRoom();
-		if(((B != A)&&(CanAddConnectionFrom(B) == 1))&&(ConnectionAlreadyExists(A, B) == 0))
-			break;
 	}
+	while((CanAddConnectionFrom(B) == 0) || (A == B) || (ConnectionAlreadyExists(A, B) == 1));
+	//while(1){
+	//	printf("making B a random room that qualifies\n");
+	//	B = GetRandomRoom();
+	//	if(((B != A)&&(CanAddConnectionFrom(B) == 1))&&(ConnectionAlreadyExists(A, B) == 0))
+	//		break;
+	//}
 	
 	printf("trying to connect A and B\n");
 	ConnectRoom(A, B);
@@ -318,6 +318,21 @@ int main (void){
 		printf("adding random connection\n");
 		AddRandomConnection();
 	}
+
+/*	
+	int tempA;
+	int tempB;
+
+	tempA = GetRandomRoom();
+	tempB = GetRandomRoom();
+
+	while(tempA == tempB){
+		tempB = GetRandomRoom();
+	}
+
+	ConnectRoom(tempA, tempB);
+*/
+
 
 	// Set a random room to be start
 	int startR;
