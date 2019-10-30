@@ -22,11 +22,15 @@ char dirName[1024];
 typedef struct {
 	char name;
 	int numbConnects;
-	char connects[7];
+	char connects[10];
 	char type;
 } room;
 
-void getConnectsAndType(char store[], char *type, char fileName[]){
+// There was a bug I could not hunt down no mater how hard I tried.
+// The issue was when a room had 6 connections it would somehow add a connection to itself first
+// This was also independent of room name entirely and 5 or less connects for all rooms worked
+// The excess space on room struct.connects is also from this mostly
+void getConnectsAndType(char roomsIndexConnects[], char *type, char fileName[], int crutch){
 	ssize_t nread;
 	char readBuffer[2000];
 
@@ -60,13 +64,23 @@ void getConnectsAndType(char store[], char *type, char fileName[]){
 			// then if so check for space
 			if(readBuffer[(iterator+2)] == ' '){
 				// if so see if letter we are looking for
-				store[storeI] = readBuffer[(iterator+3)];
+				roomsIndexConnects[storeI] = readBuffer[(iterator+3)];
 				storeI = storeI + 1;
 			}
 		}
 
 	}
 	
+	if(crutch == 666){
+		roomsIndexConnects[0] = roomsIndexConnects[1];
+		roomsIndexConnects[1] = roomsIndexConnects[2];
+		roomsIndexConnects[2] = roomsIndexConnects[3];
+		roomsIndexConnects[3] = roomsIndexConnects[4];
+		roomsIndexConnects[4] = roomsIndexConnects[5];
+		roomsIndexConnects[5] = roomsIndexConnects[6];
+		roomsIndexConnects[6] = roomsIndexConnects[7];
+	}
+
 	return;
 }
 
@@ -96,10 +110,10 @@ void initRoom(room *room){
 	int i;
 	room->name = 'X';
 	room->numbConnects = 0;
-	for(i = 0; i < 6; i++) {
+	for(i = 0; i < 10; i++) {
 		room->connects[i] = 'X';
 	}
-	room->connects[6] = '\0';
+	room->connects[9] = '\0';
 }
 
 // Function to display where we are
@@ -178,9 +192,13 @@ void loadRooms(char dirName[], room rooms[]) {
 		rooms[index].numbConnects = (getNumbLines(completeFileName))-2;
 		rooms[index].name = entry->d_name[4];
 		
-		
+		int crutch;
+		crutch = 0;
+		if(rooms[index].numbConnects == 6){
+			crutch = 666;
+		}
 		// get all of the connects
-		getConnectsAndType(rooms[index].connects, &rooms[index].type, completeFileName);
+		getConnectsAndType(rooms[index].connects, &rooms[index].type, completeFileName, crutch);
 
 		// put in the connections
 		
@@ -239,6 +257,7 @@ int main(){
 	//
 	
 //PLAY GAME
+/*
 	char inputRoom;
 	room* curRoom = findInitialRoom(rooms);
 	while(curRoom->type != 'E'){
@@ -261,7 +280,7 @@ int main(){
 
 	printf("YOU HAVE FOUND THE END ROOM. CONGRATULATIONS!\n");
 	//TODO KEEP TRACK OF STEPS / PATH
-
+*/
 //FINISH
 	return 0;
 }
