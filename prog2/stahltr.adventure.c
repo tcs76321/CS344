@@ -43,15 +43,22 @@ void getConnects(char store[], char fileName[]){
 	sizeFile = st.st_size;
 	nread = read(file_d, readBuffer, sizeFile);
 
-	int iter;
-	for(iter = 0; iter < sizeFile ;iter++){
-		if(readBuffer[iter] == 'E'){
+	int iterator;
+	
+	for(iterator; iterator < sizeFile ;iterator++){
+		//check for :
+		if(readBuffer[iterator] == 'E'){// this is the part for ROOM NAME: A
 			continue;
 		}
-		if(readBuffer[(iter+1)] == ){
-			
+		if(readBuffer[(iterator+1)] == ':'){
+			// then if so check for space
+			if(readBuffer[(iterator+2)] == ' '){
+				// if so see if letter we are looking for
+				store[storeI] = readBuffer[(iterator+3)];
+			}
 		}
 	}
+	
 
 	return;
 }
