@@ -44,6 +44,8 @@ void getConnects(char store[], char fileName[]){
 	nread = read(file_d, readBuffer, sizeFile);
 
 	int iterator;
+	int storeI;
+	storeI = 0;
 	
 	for(iterator; iterator < sizeFile ;iterator++){
 		//check for :
@@ -55,6 +57,7 @@ void getConnects(char store[], char fileName[]){
 			if(readBuffer[(iterator+2)] == ' '){
 				// if so see if letter we are looking for
 				store[storeI] = readBuffer[(iterator+3)];
+				storeI = storeI + 1;
 			}
 		}
 	}
@@ -177,7 +180,7 @@ void loadRooms(char dirName[], room rooms[]) {
 
 		// put in the connections
 		
-		printf("FILE: %s  %d\n", entry->d_name, rooms[iter].numbConnects);
+		printf("FILE: %s  %d     %s\n", entry->d_name, rooms[iter].numbConnects, connectsArray);
 
 		//finish with incrementing iter
 		
