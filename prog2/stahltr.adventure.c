@@ -1,4 +1,8 @@
 // ADVENTURE
+//
+// CITATIONS:
+// used code snippets from class
+// used code snippets from geeksforgeeks.org
 
 #include <time.h>
 #include <dirent.h>
@@ -6,6 +10,11 @@
 #include <memory.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 char dirName[1024];
 
@@ -16,6 +25,54 @@ typedef struct {
 	char connects[6];
 	char type;
 } room;
+
+void getConnects(char store[], char fileName[]){
+	ssize_t nread;
+	char readBuffer[2000];
+
+	int file_d;
+
+	file_d = open(fileName, O_RDONLY);
+
+	memset(readBuffer, '\0', sizeof(readBuffer));
+	lseek(file_d, 0, SEEK_SET);
+
+	struct stat st;
+	stat(fileName, &st);
+	int sizeFile;
+	sizeFile = st.st_size;
+	nread = read(file_d, readBuffer, sizeFile);
+
+	int iter;
+	for(iter = 0; iter < sizeFile ;iter++){
+		if(readBuffer[iter] == 'E'){
+			continue;
+		}
+		if(readBuffer[(iter+1)] == ){
+			
+		}
+	}
+
+	return;
+}
+
+int getNumbLines(char fileName[]){
+	int result;
+	result = 0;
+
+	FILE * fp;
+	char c;
+	fp = fopen(fileName, "r");
+	
+	for(c = getc(fp); c != EOF ; c = getc(fp)){
+		if(c == '\n'){
+			result = result + 1;
+		}
+	}
+
+	fclose(fp);
+	return result;
+}
 
 // 'X' is an invaid possible room and thus represents unset though initiallized
 // Similarly 99 means not here and never been there
@@ -89,31 +146,34 @@ void loadRooms(char dirName[], room rooms[]) {
 		}
 		
 		// if there is no funny business between running buildrooms and this program this works
-
-		//Find number of lines in file
-		//This minus 2 will equal the number of connections in the file because I end my room files with a new line
-
-		//getNumbLines	
-	
-		// set the number of connects
 		
-		// read the name in
-	
+		// get name of room
+
 		// set the name of the room
 	
+		// Find number of lines in file
+		// This minus 2 will equal the number of connections in the file because I end my room files with a new line
+		// set the number of connects
+		char completeFileName[1024];
+		sprintf(completeFileName, "./%s%s", dirName, entry->d_name);
+		rooms[iter].numbConnects = (getNumbLines(completeFileName))-2;
+		
+		
 		char connectsArray[6];
 		int i;
 		for(i = 0; i < 6; i++) {
 			connectsArray[i] = 'X';
 		}
-	
 		// get all of the connects
-	
+		getConnects(connectsArray, completeFileName);
+
+
 		// put in the connections
 		
+		printf("FILE: %s  %d\n", entry->d_name, rooms[iter].numbConnects);
+
 		//finish with incrementing iter
 		
-		// printf("FILE: %s\n", entry->d_name);
 		
 	}
 }
@@ -145,13 +205,13 @@ int main(){
 	int len = strlen(dirName);
 	dirName[len] = '/';
 
-	printf("folder: %s\n", dirName);
+	//printf("folder: %s\n", dirName);
 	
 	room rooms[7];
 	for(i = 0; i < 7; i++) {
 		initRoom(rooms[i]);
 	}
-	//loadRooms(dirName, rooms);
+	loadRooms(dirName, rooms);
 
 	// save it
 
