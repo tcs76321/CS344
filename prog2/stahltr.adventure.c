@@ -22,11 +22,11 @@ char dirName[1024];
 typedef struct {
 	char name;
 	int numbConnects;
-	char connects[6];
+	char connects[7];
 	char type;
 } room;
 
-void getConnects(char store[], char fileName[]){
+void getConnectsAndType(char store[], char *type, char fileName[]){
 	ssize_t nread;
 	char readBuffer[2000];
 
@@ -49,10 +49,14 @@ void getConnects(char store[], char fileName[]){
 	
 	for(iterator; iterator < sizeFile ;iterator++){
 		//check for :
-		if(readBuffer[iterator] == 'E'){// this is the part for ROOM NAME: A
-			continue;
+		if(readBuffer[iterator] == 'M' && readBuffer[iterator+1] == 'E'){// this is the part for ROOM NAME: A
+			iterator ++;
 		}
-		if(readBuffer[(iterator+1)] == ':'){
+		else if(readBuffer[iterator] == 'P' && readBuffer[iterator+1] == 'E') {
+			*type = readBuffer[iterator + 4];
+			iterator ++;
+		}
+		else if(readBuffer[(iterator+1)] == ':'){
 			// then if so check for space
 			if(readBuffer[(iterator+2)] == ' '){
 				// if so see if letter we are looking for
@@ -60,11 +64,12 @@ void getConnects(char store[], char fileName[]){
 				storeI = storeI + 1;
 			}
 		}
+
 	}
 	
-
 	return;
 }
+
 
 int getNumbLines(char fileName[]){
 	int result;
@@ -87,14 +92,15 @@ int getNumbLines(char fileName[]){
 // 'X' is an invaid possible room and thus represents unset though initiallized
 // Similarly 99 means not here and never been there
 // Function to init room to be used properly
-void initRoom(room room){
+void initRoom(room *room){
 	int i;
-	room.name = 'X';
-	room.numbConnects = 0;
+	room->name = 'X';
+	room->numbConnects = 0;
 	for(i = 0; i < 6; i++) {
-		room.connects[i] = 'X';
+		room->connects[i] = 'X';
 	}
-};
+	room->connects[6] = '\0';
+}
 
 // Function to display where we are
 
@@ -166,26 +172,31 @@ void loadRooms(char dirName[], room rooms[]) {
 		// set the number of connects
 		char completeFileName[1024];
 		sprintf(completeFileName, "./%s%s", dirName, entry->d_name);
-		rooms[iter].numbConnects = (getNumbLines(completeFileName))-2;
-		
-		
-		char connectsArray[6];
-		int i;
-		for(i = 0; i < 6; i++) {
-			connectsArray[i] = 'X';
-		}
-		// get all of the connects
-		getConnects(connectsArray, completeFileName);
 
+		int index = entry->d_name[4] - 'A';		
+
+		rooms[index].numbConnects = (getNumbLines(completeFileName))-2;
+		rooms[index].name = entry->d_name[4];
+		
+		
+		// get all of the connects
+		getConnectsAndType(rooms[index].connects, &rooms[index].type, completeFileName);
 
 		// put in the connections
 		
-		printf("FILE: %s  %d     %s\n", entry->d_name, rooms[iter].numbConnects, connectsArray);
-
-		//finish with incrementing iter
-		
+		printf("FILE: %s  %d  %c   %s\n", entry->d_name, rooms[index].numbConnects, rooms[index].type, rooms[index].connects);
 		
 	}
+}
+
+room* findInitialRoom(room rooms[]){
+	int i;
+	for(i = 0; i < 26; i++){
+		if(rooms[i].type == 'S')
+			return &rooms[i];
+	}
+
+	return 0;
 }
 
 int main(){
@@ -217,9 +228,9 @@ int main(){
 
 	//printf("folder: %s\n", dirName);
 	
-	room rooms[7];
-	for(i = 0; i < 7; i++) {
-		initRoom(rooms[i]);
+	room rooms[26];
+	for(i = 0; i < 26; i++) {
+		initRoom(&rooms[i]);
 	}
 	loadRooms(dirName, rooms);
 
@@ -228,7 +239,28 @@ int main(){
 	//
 	
 //PLAY GAME
+	char inputRoom;
+	room* curRoom = findInitialRoom(rooms);
+	while(curRoom->type != 'E'){
+		printf("CURRENT LOCATION: %c\n", curRoom->name);
+		printf("POSSIBLE CONNECTIONS: ");
+		for(i = 0; i < curRoom->numbConnects; i++){
+			printf("%c", curRoom->connects[i]);
+			if(i < curRoom->numbConnects - 1)
+				printf(", ");
+		}
+		printf("\nWHERE TO? >");
+		scanf("%c", &inputRoom);
+		if(rooms[inputRoom - 'A'].name == 'X'){
+			printf("HUH? I DON'T UNDERSTAND THAT ROOM. TRY AGAIN.\n");
+		}
+		else {
+			curRoom = &rooms[inputRoom - 'A'];
+		}
+	}
 
+	printf("YOU HAVE FOUND THE END ROOM. CONGRATULATIONS!\n");
+	//TODO KEEP TRACK OF STEPS / PATH
 
 //FINISH
 	return 0;
