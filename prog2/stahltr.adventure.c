@@ -51,7 +51,7 @@ void getConnectsAndType(char roomsIndexConnects[], char *type, char fileName[], 
 	int storeI;
 	storeI = 0;
 	
-	for(iterator; iterator < sizeFile ;iterator++){
+	for(iterator = 0; iterator < sizeFile ;iterator++){
 		//check for :
 		if(readBuffer[iterator] == 'M' && readBuffer[iterator+1] == 'E'){// this is the part for ROOM NAME: A
 			iterator ++;
@@ -202,7 +202,7 @@ void loadRooms(char dirName[], room rooms[]) {
 
 		// put in the connections
 		
-		printf("FILE: %s  %d  %c   %s\n", entry->d_name, rooms[index].numbConnects, rooms[index].type, rooms[index].connects);
+		//printf("FILE: %s  %d  %c   %s\n", entry->d_name, rooms[index].numbConnects, rooms[index].type, rooms[index].connects);
 		
 	}
 }
@@ -257,7 +257,7 @@ int main(){
 	//
 	
 //PLAY GAME
-/*
+
 	char inputRoom;
 	room* curRoom = findInitialRoom(rooms);
 	while(curRoom->type != 'E'){
@@ -274,13 +274,13 @@ int main(){
 			printf("HUH? I DON'T UNDERSTAND THAT ROOM. TRY AGAIN.\n");
 		}
 		else {
-			curRoom = &rooms[inputRoom - 'A'];
+			curRoom = &(rooms[inputRoom - 'A']);
 		}
 	}
 
 	printf("YOU HAVE FOUND THE END ROOM. CONGRATULATIONS!\n");
 	//TODO KEEP TRACK OF STEPS / PATH
-*/
+
 //FINISH
 	return 0;
 }
