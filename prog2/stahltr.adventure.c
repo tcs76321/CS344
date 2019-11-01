@@ -1,9 +1,11 @@
 // ADVENTURE
 //
 // CITATIONS:
-// used code snippets from class
-// used code snippets from geeksforgeeks.org
+// used code snippets from class, piazza post from arash shahbaz in particular, and more etc
+// used code snippets from geeksforgeeks.org, especially for mutexes
 // used code from stack overflow and other stack exchanges
+// used code form linux.die.net/man/3/strftime which was linked on program assignment canvas page
+// ALL WERE MODIFIED to some degree, of course
 
 #include <time.h>
 #include <dirent.h>
@@ -16,6 +18,20 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <pthread.h>
+
+ssize_t nread, nwritten;
+int file_d;
+char fileTitle[1024];
+char readBuffer[1024];
+int sizeFile;
+struct stat st;
+int waiter;
+int busboy;
+
+// For second thread time keeping
+pthread_t tkt;// time keeping thread
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;//for me this needed to be global was getting missing { other wise
 
 char dirName[1024];
 
@@ -44,7 +60,6 @@ void getConnectsAndType(char roomsIndexConnects[], char *type, char fileName[]){
 	int sizeFile;
 	sizeFile = st.st_size;
 	nread = read(file_d, readBuffer, sizeFile);
-	
 	int iterator;
 	int storeI;//storeI was initially from different approach to an attempt at an implementation now it is just a second iter
 	storeI = 0;
@@ -168,11 +183,47 @@ room* findInitialRoom(room rooms[]){
 	return 0;
 }
 
-int main(){
-//READ DATA IN FROM FILES
+void * timeKeeperThread(void * arg){
+	pthread_mutex_lock(&lock);// waits here until called
+	// open to create or write-over currentTime.txt within this dir
+	sprintf(fileTitle, "./currentTime.txt");
+	file_d = open(fileTitle, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
+	// get time
+	char stringToWrite[1024];
+	time_t t;
+	struct tm * tmp;
+	t = time(NULL);
+	tmp = localtime(&t);
+	if(tmp == NULL){
+		perror("localtime");
+		exit(EXIT_FAILURE);
+	}
+	// prepare what is to be written
+	if(strftime(stringToWrite, sizeof(stringToWrite), "%I:%M%p, %A, %B %d, %Y", tmp) == 0){
+		fprintf(stderr, "strftime returned 0");
+		exit(EXIT_FAILURE);
+	}
+	// write
+	nwritten = write(file_d, stringToWrite, strlen(stringToWrite) * sizeof(char));
+	
+	// pass control
+	pthread_mutex_unlock(&lock);
+	return NULL;// thread dies and another needs to be created to replace it
+}
+
+int main(void){
+// The lock was intitialized when delcared globally
+// LOCK the mutex lock
+	pthread_mutex_lock(&lock);
+
+// spawn time thread
+	pthread_create(&(tkt), NULL, &timeKeeperThread, NULL);
+
+// Do Game Stuff AKA call gameFunction
+// READ DATA IN FROM FILES
 	// This will hold the path, this works for me because my rooms names are A B C etc
 	char path[1024];
-	// TODO init path array to Xs, X will mean unset as it does in initRoom
+	// init path array to Xs, X will mean unset as it does in initRoom
 	int i;
 	for(i = 0; i < 1024; i++) {
 		path[i] = 'X';
@@ -202,7 +253,7 @@ int main(){
 	}
 	loadRooms(dirName, rooms);
 	
-//PLAY GAME
+// PLAY GAME
 	char inputRoom[1024];
 	room* curRoom = findInitialRoom(rooms);
 	while(curRoom->type != 'E'){// initially this will be == 'S', when the player gets to the end it will be E and this loop will stop
@@ -216,10 +267,38 @@ int main(){
 				printf(", ");
 			}
 		}
+		gtL:
 		printf("\nWHERE TO? >");// no space no newline
 		scanf("%s", inputRoom);//take in a string
 		printf("\n");// formating
-		if(strlen(inputRoom) == 1){
+		//take care of time stuff first
+		if(((strlen(inputRoom)) == 4)&&((inputRoom[0]) == 't')&&((inputRoom[1]) == 'i')&&((inputRoom[2]) == 'm')&&((inputRoom[3]) == 'e')){//'if time requested'
+			// unlock mutex, passes execution to tkt which has been waiting on it
+			pthread_mutex_unlock(&lock);
+			// lock mutex, or wait to do so
+			// try to wait for thread to make sure it can lock first
+			busboy = 0;
+			for(waiter = 0; waiter < 100000 ;waiter++){
+				busboy = busboy + 2;
+			}
+			pthread_mutex_lock(&lock);// continue to wait here for other thread to finish
+			// read from the file
+			sprintf(fileTitle, "./currentTime.txt");
+			file_d = open(fileTitle, O_RDONLY);
+			memset(readBuffer, '\0', sizeof(readBuffer));
+			stat(fileTitle, &st);
+			sizeFile = st.st_size;
+			nread = read(file_d, readBuffer, sizeFile);
+			// format if needed
+			// out put stuff, shouldn't need a newline
+			printf(" %s", readBuffer);
+			// spawn another time thread the other time thread has finished and doesn't exit now
+			pthread_create(&(tkt), NULL, &timeKeeperThread, NULL);// which promptly begins waiting to lock what we just locked
+			printf("\n");// formatting
+			// go to gtL label so as to out put what is necessary, and skip things we don't want
+			goto gtL;
+		}
+		if(strlen(inputRoom) == 1){// else bad input HUH?
 			//loop through all connects
 			for(i = 0; i < curRoom->numbConnects; i++){
 				// check if the first char of the string taken is the char of the connect
@@ -230,7 +309,6 @@ int main(){
 				}
 			}
 		}
-		// this was supposed to only work for if the first char was wrong but also seems to take care of if passed AA instead of A of AB instead of A, as well as x xyz X ZX etc
 		if(i == curRoom->numbConnects){
 			printf("HUH? I DON'T UNDERSTAND THAT ROOM. TRY AGAIN.\n\n");//needs two newlines for exact formating
 		}
@@ -243,10 +321,23 @@ int main(){
 	{
 		printf("%c\n", path[i]);
 	}
-//FINISH
+// FINISH
+// unlock and destory mutex
+	pthread_mutex_unlock(&lock);
+	pthread_mutex_destroy(&lock);
 	return 0;
 }
-
+/*
+	// create two threads, one for game and one for time stuff
+	pthread_create(&(mgt), NULL, &mainThread, NULL);
+	pthread_create(&(tkt), NULL, &timeKeeperThread, NULL);
+	// attempt to join them
+	pthread_join(mgt, NULL);
+	pthread_join(tkt, NULL);
+	// destroy lock
+	pthread_mutex_destroy(&lock);
+	return 0;
+*/
 
 /*
 
