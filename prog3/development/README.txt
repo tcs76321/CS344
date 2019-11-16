@@ -8,8 +8,8 @@ CITATIONS AND SOURCES:
  - Code from class lectures
 	- 3.3 Advanced User INput with getline
  - Code and info from TLPI by Kerrisk class textbook
- - Info from tutorialspoint.com
- - 
+ - Code andInfo from tutorialspoint.com
+ 	- tutorialspoint.com/c_standard_library/c_function_strtok.htm      ? No "l" I guess after htm ?
 
 HOW TO COMPILE AND RUN:
 =======
@@ -23,5 +23,6 @@ All citations:
 - 
 
 CMD to compile:
-gcc 
+gcc -o smallsh smallsh.c -std=c99
+
 >>>>>>> 248da6699b028ad685164351d5f69908339feab5
