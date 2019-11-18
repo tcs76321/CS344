@@ -4,9 +4,11 @@
 #include <signal.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 // Print the ": " for out prompt and flush
 void printPrompt(){
+	fflush(stdout);
 	printf(": ");
 	fflush(stdout);
 	return;
@@ -39,9 +41,8 @@ int main(){
 	pid_t childFPID; // pid to hold child processes that are foreground
 	pid_t spawnPID; // pid for spawning
 
-	char **command = malloc(512 * sizeof(char *));
+	char **command = malloc(514 * sizeof(char *));//512 arguements plus 1 for NULL and one for '\0'
 	char *seperator = " \n";
-	char *parsed;
 	int index = 0;
 
 	// For status command
@@ -105,8 +106,9 @@ int main(){
 			printf("A cd with a place to go\n");
 			fflush(stdout);
 		}
-		// OTHERWISE, we have a command we need to try to execvp as FOREGROUND
+		// OTHERWISE, we have a CMD, we need to try to execvp as FOREGROUND
 		else{
+			fflush(stdout);
 			//printf("\nsomeother command\n");
 			spawnPID = fork();// make a child process
 			switch(spawnPID){
@@ -116,22 +118,23 @@ int main(){
 					break;
 
 				case 0://Child
-					parsed = strtok(lineEntered, seperator);
-					while(parsed != NULL){
-						command[index] = parsed;
-						index++;
-						parsed = strtok(NULL, seperator);
+					index = 1;// just to be sure and for repeated processes I think, not 0 because line right below takes care of 0 spot
+					command[0] = strtok(lineEntered, seperator);
+					while( ( command[index] = strtok(NULL, seperator) ) ){// first time index is 1 here and we get the 2nd arguement AND save it
+						index++;// just need to increment and then it will go up and see if can get something therer other than NULL
+						// the last time this is called index will be set to a value where this while stops aka NULL
 					}
-					command[index] = NULL;
+					command[index] = NULL;// thus, when here, we have index where we want to actuall place NULL in
 					execvp(command[0], command);//Doesn't return if succesfull
 					//if still going command was bad returned an error
 					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
-					perror("Execvp seems to have failed");
+					perror("execvp seems to have failed");
+					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
 					exit(1);
 					break;
 				
 				default://parent
-					waitpid(spawnPID);
+					waitpid(spawnPID, &lastStatus, 0);
 					fflush(stdout);
 			}
 		}

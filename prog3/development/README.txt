@@ -18,7 +18,7 @@ CITATIONS AND SOURCES:
 HOW TO COMPILE AND RUN:
 
 CMD to compile:
-gcc -o smallsh smallsh.c -std=c99
+gcc -o smallsh smallsh.c -std=gnu99
 
 NOTES:
 *I tried my best to handle trailing spaces but I don't think it works perfectly with & and backgrounds, the assignment specs didn't speak on this at all though so yeah*
