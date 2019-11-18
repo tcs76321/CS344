@@ -7,8 +7,13 @@ CITATIONS AND SOURCES:
  - Code from class lectures
 	- 3.3 Advanced User INput with getline
  - Code and info from TLPI by Kerrisk class textbook
+
  - Code andInfo from tutorialspoint.com
  	- tutorialspoint.com/c_standard_library/c_function_strtok.htm      ? No "l" I guess after htm ?
+
+ - Code and Info from indradhanush.github.io/blog/writing-a-unix-shell-part-2/      *and also same URL but ...part-1/ instead of ...part-2/
+
+
 
 HOW TO COMPILE AND RUN:
 

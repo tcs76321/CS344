@@ -36,6 +36,13 @@ int main(){
 	// Record parent process id
 	pid_t parentPID = getpid();
 	//printf("\nparent ID is: %d \n",(int)(parentPID));
+	pid_t childFPID; // pid to hold child processes that are foreground
+	pid_t spawnPID; // pid for spawning
+
+	char **command = malloc(512 * sizeof(char *));
+	char *seperator = " \n";
+	char *parsed;
+	int index = 0;
 
 	// For status command
 	int lastStatus = 0;
@@ -65,6 +72,7 @@ int main(){
 
 		// tokenize first arguement,should be the command to be used
 		token = strtok(lineEntered, s);
+		if(!(strcmp(token, "\n"))){ continue; }
 
 		// check if built in and if so do built in for it
 		// exit
@@ -78,6 +86,7 @@ int main(){
 		else if(!(strcmp(token, "status")) || !(strcmp(token, "status\n")) ){
 			printf("exit value %d\n", lastStatus);
 			fflush(stdout);
+			continue;
 		}
 		// cd, 
 		// need to token again into B to see if alone or with a place to go
@@ -96,11 +105,37 @@ int main(){
 			printf("A cd with a place to go\n");
 			fflush(stdout);
 		}
-		// otherwise, we have a command we need to try to execvp
+		// OTHERWISE, we have a command we need to try to execvp as FOREGROUND
 		else{
-			
-		}
+			//printf("\nsomeother command\n");
+			spawnPID = fork();// make a child process
+			switch(spawnPID){
+				case -1:
+					perror("Hull Breach!");
+					exit(1);
+					break;
 
+				case 0://Child
+					parsed = strtok(lineEntered, seperator);
+					while(parsed != NULL){
+						command[index] = parsed;
+						index++;
+						parsed = strtok(NULL, seperator);
+					}
+					command[index] = NULL;
+					execvp(command[0], command);//Doesn't return if succesfull
+					//if still going command was bad returned an error
+					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
+					perror("Execvp seems to have failed");
+					exit(1);
+					break;
+				
+				default://parent
+					waitpid(spawnPID);
+					fflush(stdout);
+			}
+		}
+		fflush(stdout);
 	}
 	// should never be called I guess but just for habit, compiling, cleanliness and testing etc
 	return 0;
