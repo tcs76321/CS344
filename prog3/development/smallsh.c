@@ -33,12 +33,17 @@ int main(){
 	//SIGINT_action.sa_flags = SA_RESTART;// not enabled for more control
 	//sigaction(SIGINT, &SIGINT_action, NULL);// set to not do anything, I think?
 	
+	// Record parent process id
+	pid_t parentPID = getpid();
+	//printf("\nparent ID is: %d \n",(int)(parentPID));
+
 	// For status command
 	int lastStatus = 0;
 
 	// For tokenizing commands
 	const char s[2] = " ";
 	char * token;
+	char * tokenB;
 
 	while(1){ //TODO loop until CTRL somethin stops us
 		while(1){ // loop until good input that wasnt corrupted by a signal
@@ -47,40 +52,56 @@ int main(){
 			if(numCharsEntered == -1){ clearerr(stdin); } // Check for if signal messed things up
 			else{ break; } // Else we got good input that go around and so break out and 
 		}
-		//TODO Check for if supposed to be background
+		// Check if comment and if so ignore it by a continue and re prompt for input
+		if(* lineEntered == '#'){ continue; }
+				
+		// Check for if supposed to be background
+		int whereBGSmb;//where a background symbol might be
+		whereBGSmb = strlen(lineEntered) - 2;//strlen minus one for 0 index minus one for new line
+		if(*(lineEntered + whereBGSmb) == '&'){
+			printf("That was a background command\n");
+			//TODO and if so do that
+		}
 
-		//TODO do background
+		// tokenize first arguement,should be the command to be used
+		token = strtok(lineEntered, s);
 
-		
-		// Other wise not background
-		// Check if that command is one of our built in three
-		if(!(strcmp(lineEntered, "exit\n"))){
+		// check if built in and if so do built in for it
+		// exit
+		if(!(strcmp(token, "exit")) || (!(strcmp(token, "exit\n")))){
 			//TODO kill all children
-
+			
 			// exit
 			return 0;
 		}
-		else if(!(strcmp(lineEntered, "status\n"))){
+		// status
+		else if(!(strcmp(token, "status")) || !(strcmp(token, "status\n")) ){
 			printf("exit value %d\n", lastStatus);
 			fflush(stdout);
 		}
-		else if(!(strcmp(lineEntered, "cd\n"))){// for just cd by itself
-			chdir(getenv("HOME"));
+		// cd, 
+		// need to token again into B to see if alone or with a place to go
+		tokenB = strtok(NULL, s);
+		//printf("\n tokenB is -- %s --\n", tokenB);
+		// check if cd was alone and go to HOME variable as required
+		// for just cd by itself or followed by only spaces and then enter aka \n
+		if(!(strcmp(token, "cd\n")) || // the following is overkill, maybe,from trying to debug something that was a bug elsewhere but I keep it because it WORKS
+		(!(strcmp(token, "cd"))&&(!(strcmp(tokenB, "\n")) || !(strcmp(tokenB, " ")) || !(strcmp(tokenB, " \n")) || ( tokenB == NULL)))){
+			printf("A cd alone or followed by only spaces\n");
+			fflush(stdout);
+			//chdir(getenv("HOME"));
 		}
-		// otherwise, tokenize
+		// cd with a command
+		else if (!(strcmp(token, "cd"))){
+			printf("A cd with a place to go\n");
+			fflush(stdout);
+		}
+		// otherwise, we have a command we need to try to execvp
 		else{
 			
 		}
-		// cd with arguement		
-		else if(){
-		
-		}
 
-		//TODO otherwise it is non built in
-		//else if(){
-		//}
 	}
-
-	// should never be called I guess but just for habit and cleanliness and testing etc
+	// should never be called I guess but just for habit, compiling, cleanliness and testing etc
 	return 0;
 }
