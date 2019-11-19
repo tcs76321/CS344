@@ -5,9 +5,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+
+//TODO Function to loop until no more children to wait on
+//void announceBGfinishes 
 
 // Print the ": " for out prompt and flush
 void printPrompt(){
+	//announceBGfinishes;
 	fflush(stdout);
 	printf(": ");
 	fflush(stdout);
@@ -20,6 +25,10 @@ void printPrompt(){
 //	write(STDOUT_FILENO, message, 28);
 //	return;
 //}
+
+pid_t Children[100] = { 0 };
+int numbChildren = 0; 
+int found = 0;
 
 int main(){
 	// stuff getting input
@@ -49,12 +58,16 @@ int main(){
 	// For status command
 	int lastStatus = 0;
 
-	// For tokenizing commands
-	//const char s[2] = " ";
-	//char * token;
-	//char * tokenB;
+	//Fg bg varibales for background processes and redirections
+	int i;
+	int backG = 0;// 0 means foreground 1 means background
+	int rdOut = 0;// 0 means not, 9 means it was a redirected command
+	char * placeOut = "none";// other wise the file
+	int rdIn = 0; // same
+	char * placeIn = "none";// same
+	int sourceFD, targetFD, rdResult;// file desc and res to hold if these things work
 
-	while(1){ //TODO loop until CTRL somethin stops us
+	while(1){ //TODO loop until proper signal stops us
 		while(1){ // loop until good input that wasnt corrupted by a signal
 			printPrompt();
 			numCharsEntered = getline(&lineEntered, &bufferSize, stdin); // get command from cmdline
@@ -62,18 +75,11 @@ int main(){
 			else{ break; } // Else we got good input that go around and so break out and 
 		}
 
-		// Check for if supposed to be background
-		int whereBGSmb;//where a background symbol might be
-		whereBGSmb = strlen(lineEntered) - 2;//strlen minus one for 0 index minus one for new line
-		if(*(lineEntered + whereBGSmb) == '&'){
-			printf("That was a background command\n");
-			//TODO and if so do that
-		}
-
 		// Check if comment and if so ignore it by a continue and re prompt for input
 		if(* lineEntered == '#'){ continue; }
 		// Deal with when they just hit enter a bunch of times
 		if(* lineEntered == '\n'){ continue; }
+
 		// get all arguements into command array thingy
 		index = 1;
 		command[0] = strtok(lineEntered, seperator);
@@ -82,10 +88,63 @@ int main(){
 			// the last time this is called index will be set to a value where this while stops aka NULL
 		}
 		command[index] = NULL;
+
+		// Check for if supposed to be backgroun
+		backG = 0; // assume we won't find a &, but when we do change this
+		i = 514;
+		while(i > 0){
+			if(command[i] && !(strcmp(command[i], "&"))){
+				// printf("That was a background cmd\n");
+				command[i] = NULL;
+				backG = 1;
+				break;
+			}
+			i--;
+		}
+		//Now need to handle just spaces followed by enter
+		if(!(command[0])){ continue; }
+
+		// check for > aka out
+		//reset variables to hold if find things to none
+		rdOut = 0;
+		placeOut = "none";
+		//check for >
+		i = 513;
+		while(i > 0){
+			if(command[i] && !(strcmp(command[i], ">"))){
+				//printf("That was redirected to %s \n", command[i+1]);
+				command[i] = NULL;
+				placeOut = command[i+1];
+				command[i+1] = NULL;
+				rdOut = 9;
+				break;
+			}
+			i--;
+		}
+		
+		// check for < aka in
+		//reset variables to hold to be none
+		rdIn = 0;
+		placeIn = "none";
+		//check for stuff
+		i = 513;
+		while(i > 0){
+			if(command[i] && !(strcmp(command[i], ">"))){
+			//	if found hold those things in variables
+				//printf("That was redirected to %s \n", command[i+1]);
+				placeIn = command[i+1];
+				command[i] = NULL;
+				command[i+1] = NULL;
+				rdIn = 9;
+				break;
+			}
+			i--;
+		}
+		
 		// Handle built in commands
 		// exit
 		if(!(strcmp(command[0], "exit"))){
-			//TODO kill all children
+			//TODO once kill all children
 
 			return 0;
 		}
@@ -105,12 +164,14 @@ int main(){
 				perror("cd failed");
 				fflush(stdout);
 			}
-			
 			//printf("cd with command(s)\n");
 		}
 		else{
 			// if inside here then must be a non-builtin we need to execvp
 			spawnPID = fork();// make a child process, this is where children start too
+			// add this process to our array of children
+			Children[numbChildren] = spawnPID;
+			numbChildren = numbChildren + 1;
 			switch(spawnPID){
 				case -1:// if something went wrong
 					perror("Hull Breach!");
@@ -118,18 +179,71 @@ int main(){
 					break;// for compiling and habit
 
 				case 0://Child
-					execvp(command[0], command);//Doesn't return if succesfull
-					//if still going command was bad returned an error
-					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
-					printf("%s: ", command[0]);
-					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
-					perror("");
-					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
-					exit(1);
-					break;
+						//first check for redirection
+						// <
+						if(rdIn == 9){
+							// redirect stdin to be from placeIn
+							sourceFD = open(placeIn, O_RDONLY);
+							if(sourceFD == -1){ 
+								perror("source open()"); 
+								fflush(stdout);
+								exit(1);
+							}
+							rdResult = dup2(sourceFD, 0);
+							if(rdResult == -1){ 
+								perror("source dup2()"); 
+								fflush(stdout);
+								exit(2);
+							}
+						}
+						// >
+						if(rdOut == 9){
+							// redirect stdout to be placeOuttt
+							targetFD = open(placeOut, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+							if(targetFD == -1){ 
+								perror("target open()"); 
+								fflush(stdout);
+								exit(1);
+							}
+							rdResult = dup2(targetFD, 1);
+							if(rdResult == -1){ 
+								perror("target dup2()"); 
+								fflush(stdout);
+								exit(2);
+							}
+							
+						}
+						execvp(command[0], command);//Doesn't return if succesfull
+						//if still going command was bad returned an error
+						fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
+						printf("%s: ", command[0]);
+						fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
+						perror("");
+						fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
+						exit(1);
+						break;
 				
 				default://parent
-					waitpid(spawnPID, &lastStatus, 0);
+					if(backG == 0){
+						found = 0;
+						waitpid(spawnPID, &lastStatus, 0);
+						for(i=0 ; i < (numbChildren+1) ; i++){
+							if(Children[i] == spawnPID){// look for index of where spawnPID was in children
+								found = 1;// if found record that
+							}
+							if(found == 1){// first time this is true i is still index of spawnPID I want to remove
+								Children[i] = Children[i+1];// do so by so copying over it, if PID behind what we want to remove then
+								// then it is preserved and numbChildren is made valid again, where the behind PID was is now 0
+								// handles any number of pids behind what needs to be removed
+							}
+						}
+					numbChildren = numbChildren - 1;
+					}
+					else{
+						// background command
+						// Dont need to do anything here actually
+						// waiting on background processes will be handled prior to outputing ": " in my getline loop
+					}
 					//lastStatus = WEXITSTATUS(lastStatus);
 					fflush(stdout);
 			}
