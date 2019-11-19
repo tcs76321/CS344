@@ -95,14 +95,18 @@ int main(){
 		}
 		// cd alone
 		else if(!(strcmp(command[0], "cd")) && ((command[1] == NULL))){
-			//TODO
-			//chdir(getenv("HOME"));
-			printf("cd alone\n");
+			chdir(getenv("HOME"));// this should never return -1 because there should always be a HOME
+			//printf("cd alone\n");
 		}
 		// cd with one or more commands, should only ever be 1 though
 		else if(!(strcmp(command[0], "cd"))){
-			//TODO
-			printf("cd with command(s)\n");
+			if(chdir(command[1]) == -1){
+				fflush(stdout);
+				perror("cd failed");
+				fflush(stdout);
+			}
+			
+			//printf("cd with command(s)\n");
 		}
 		else{
 			// if inside here then must be a non-builtin we need to execvp
@@ -117,8 +121,9 @@ int main(){
 					execvp(command[0], command);//Doesn't return if succesfull
 					//if still going command was bad returned an error
 					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
-					printf("%s", command[0]);
-					perror(" ");
+					printf("%s: ", command[0]);
+					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
+					perror("");
 					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
 					exit(1);
 					break;
