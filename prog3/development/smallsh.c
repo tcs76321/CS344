@@ -27,6 +27,7 @@ int main(){
 	int currChar = -5; // Tracks where we are when we print out every char
 	size_t bufferSize = 0; // Holds how large the allocated buffer is
 	char * lineEntered = NULL; // Points to a buffer
+	char * lineEntered2 = NULL;
 
 	//stuff for signal handling
 	//struct sigaction SIGINT_action = {0};// make struct for sigaction
@@ -49,9 +50,9 @@ int main(){
 	int lastStatus = 0;
 
 	// For tokenizing commands
-	const char s[2] = " ";
-	char * token;
-	char * tokenB;
+	//const char s[2] = " ";
+	//char * token;
+	//char * tokenB;
 
 	while(1){ //TODO loop until CTRL somethin stops us
 		while(1){ // loop until good input that wasnt corrupted by a signal
@@ -60,9 +61,7 @@ int main(){
 			if(numCharsEntered == -1){ clearerr(stdin); } // Check for if signal messed things up
 			else{ break; } // Else we got good input that go around and so break out and 
 		}
-		// Check if comment and if so ignore it by a continue and re prompt for input
-		if(* lineEntered == '#'){ continue; }
-				
+
 		// Check for if supposed to be background
 		int whereBGSmb;//where a background symbol might be
 		whereBGSmb = strlen(lineEntered) - 2;//strlen minus one for 0 index minus one for new line
@@ -71,70 +70,62 @@ int main(){
 			//TODO and if so do that
 		}
 
-		// tokenize first arguement,should be the command to be used
-		token = strtok(lineEntered, s);
-		if(!(strcmp(token, "\n"))){ continue; }
-
-		// check if built in and if so do built in for it
+		// Check if comment and if so ignore it by a continue and re prompt for input
+		if(* lineEntered == '#'){ continue; }
+		// Deal with when they just hit enter a bunch of times
+		if(* lineEntered == '\n'){ continue; }
+		// get all arguements into command array thingy
+		index = 1;
+		command[0] = strtok(lineEntered, seperator);
+		while( ( command[index] = strtok(NULL, seperator) ) ){// first time index is 1 here and we get the 2nd arguement AND save it
+			index++;// just need to increment and then it will go up and see if can get something therer other than NULL
+			// the last time this is called index will be set to a value where this while stops aka NULL
+		}
+		command[index] = NULL;
+		// Handle built in commands
 		// exit
-		if(!(strcmp(token, "exit")) || (!(strcmp(token, "exit\n")))){
+		if(!(strcmp(command[0], "exit"))){
 			//TODO kill all children
-			
-			// exit
+
 			return 0;
 		}
 		// status
-		else if(!(strcmp(token, "status")) || !(strcmp(token, "status\n")) ){
+		else if(!(strcmp(command[0], "status"))){
 			printf("exit value %d\n", lastStatus);
-			fflush(stdout);
-			continue;
 		}
-		// cd, 
-		// need to token again into B to see if alone or with a place to go
-		tokenB = strtok(NULL, s);
-		//printf("\n tokenB is -- %s --\n", tokenB);
-		// check if cd was alone and go to HOME variable as required
-		// for just cd by itself or followed by only spaces and then enter aka \n
-		if(!(strcmp(token, "cd\n")) || // the following is overkill, maybe,from trying to debug something that was a bug elsewhere but I keep it because it WORKS
-		(!(strcmp(token, "cd"))&&(!(strcmp(tokenB, "\n")) || !(strcmp(tokenB, " ")) || !(strcmp(tokenB, " \n")) || ( tokenB == NULL)))){
-			printf("A cd alone or followed by only spaces\n");
-			fflush(stdout);
+		// cd alone
+		else if(!(strcmp(command[0], "cd")) && ((command[1] == NULL))){
+			//TODO
 			//chdir(getenv("HOME"));
+			printf("cd alone\n");
 		}
-		// cd with a command
-		else if (!(strcmp(token, "cd"))){
-			printf("A cd with a place to go\n");
-			fflush(stdout);
+		// cd with one or more commands, should only ever be 1 though
+		else if(!(strcmp(command[0], "cd"))){
+			//TODO
+			printf("cd with command(s)\n");
 		}
-		// OTHERWISE, we have a CMD, we need to try to execvp as FOREGROUND
 		else{
-			fflush(stdout);
-			//printf("\nsomeother command\n");
-			spawnPID = fork();// make a child process
+			// if inside here then must be a non-builtin we need to execvp
+			spawnPID = fork();// make a child process, this is where children start too
 			switch(spawnPID){
-				case -1:
+				case -1:// if something went wrong
 					perror("Hull Breach!");
-					exit(1);
-					break;
+					exit(1);// let know something went wrong
+					break;// for compiling and habit
 
 				case 0://Child
-					index = 1;// just to be sure and for repeated processes I think, not 0 because line right below takes care of 0 spot
-					command[0] = strtok(lineEntered, seperator);
-					while( ( command[index] = strtok(NULL, seperator) ) ){// first time index is 1 here and we get the 2nd arguement AND save it
-						index++;// just need to increment and then it will go up and see if can get something therer other than NULL
-						// the last time this is called index will be set to a value where this while stops aka NULL
-					}
-					command[index] = NULL;// thus, when here, we have index where we want to actuall place NULL in
 					execvp(command[0], command);//Doesn't return if succesfull
 					//if still going command was bad returned an error
 					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
-					perror("execvp seems to have failed");
+					printf("%s", command[0]);
+					perror(" ");
 					fflush(stdout);//For some reason, was prompting again from parent before print stuff from child execvp
 					exit(1);
 					break;
 				
 				default://parent
 					waitpid(spawnPID, &lastStatus, 0);
+					//lastStatus = WEXITSTATUS(lastStatus);
 					fflush(stdout);
 			}
 		}
