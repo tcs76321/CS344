@@ -129,7 +129,7 @@ int main(){
 		//check for stuff
 		i = 513;
 		while(i > 0){
-			if(command[i] && !(strcmp(command[i], ">"))){
+			if(command[i] && !(strcmp(command[i], "<"))){
 			//	if found hold those things in variables
 				//printf("That was redirected to %s \n", command[i+1]);
 				placeIn = command[i+1];
