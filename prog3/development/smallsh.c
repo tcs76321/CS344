@@ -49,6 +49,7 @@ char * placeIn = "none";// same
 int sourceFD, targetFD, rdResult;// file desc and res to hold if these things work
 
 int lastStatus = 0;// For status command
+int lastStatusBG = 0;
 
 int main(){
 	// stuff getting input
@@ -313,7 +314,7 @@ int main(){
 
 void announceBGfinishes(){
 	do{
-		childPID = waitpid(-1, &lastStatus, WNOHANG);
+		childPID = waitpid(-1, &lastStatusBG, WNOHANG);
 		if(childPID != 0 && childPID != -1){
 			//
 			printf("background pid %d is done: ", childPID);
@@ -329,11 +330,11 @@ void announceBGfinishes(){
 				}
 			}
 			numbChildren = numbChildren - 1;
-			if(WIFEXITED(lastStatus) != 0){// check for normal completion
-				printf("exit value %d\n", lastStatus);
+			if(WIFEXITED(lastStatusBG) != 0){// check for normal completion
+				printf("exit value %d\n", lastStatusBG);
 			}
-			else if(WIFSIGNALED(lastStatus) != 0){ // otherwise, check for if singaled
-				printf("exit value %d\n", lastStatus);
+			else if(WIFSIGNALED(lastStatusBG) != 0){ // otherwise, check for if singaled
+				printf("exit value %d\n", lastStatusBG);
 			}
 			fflush(stdout);
 		}
