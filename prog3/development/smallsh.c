@@ -7,6 +7,29 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
+/* UPDATE:
+ *
+ * Mr. Tran to help you grade I wanted to let you know what I did and did not get done since you graded last
+ *
+ * my code was not passing the ls status 0 test
+ *
+ * it now does
+ *
+ * and also badfile status used to give 256 and non sense number( I wasnt using WEXITSTATUS before)
+ * and now it does gives 1 as it should
+ *
+ * the handling for termination signals and stuff was not correct before and was setting lastStatus to 1 always which was the issue
+ *
+ * I also never printed out the signal as terminated by signal but was still doing exit value %d for
+ *
+ * I fixed that and now terminated signals could theoretically work but I did not check it to be honest
+ *
+ * I only double checked, ls status exit, and badfile status exit
+ *
+ *
+ *
+ * The following is still true I did not do anything more to try and and handle signals beyond what is commented out, and $$ is still not handled either
+ * */
 /* 
 *** I was able to get everything done except for:
 signals, 
@@ -22,6 +45,7 @@ void announceBGfinishes();
 // Print the ": " for out prompt and flush
 void printPrompt();
 
+void statusCMD();
 // catchSIGINT, from class code From 3.3 Advanced User Input class page modified to do what the assignment needs instead
 //void catchSIGINT(int signo){
 //	char * message = "SIGINT. Use CTRL-Z to Stop.\n";
@@ -49,7 +73,7 @@ char * placeIn = "none";// same
 int sourceFD, targetFD, rdResult;// file desc and res to hold if these things work
 
 int lastStatus = 0;// For status command
-int lastStatusBG = 0;
+int lastStatusBG = 0;// for logic in bg what bg processes dont affect status command only foreground
 
 int main(){
 	// stuff getting input
@@ -161,7 +185,8 @@ int main(){
 		}
 		// status
 		else if(!(strcmp(command[0], "status"))){
-			printf("exit value %d\n", lastStatus);
+			statusCMD();
+			//printf("exit value %d\n", lastStatus);
 		}
 		// cd alone
 		else if(!(strcmp(command[0], "cd")) && ((command[1] == NULL))){
@@ -198,12 +223,10 @@ int main(){
 							if(sourceFD == -1){ 
 								perror("source open()");
 								fflush(stdout);
-								lastStatus = 1;
 								exit(1);
 							}
 							rdResult = dup2(sourceFD, 0);
 							if(rdResult == -1){ 
-								lastStatus = 1;
 								perror("source dup2()"); 
 								fflush(stdout);
 								exit(2);
@@ -216,13 +239,11 @@ int main(){
 							if(sourceFD == -1){ 
 								perror("source open dev null");
 								fflush(stdout);
-								lastStatus = 1;
 								exit(1);
 							}
 							rdResult = dup2(sourceFD, 0);
 							if(rdResult == -1){ 
 								perror("source dup2 dev null to fd 0"); 
-								lastStatus = 1;
 								fflush(stdout);
 								exit(2);
 							}
@@ -234,14 +255,12 @@ int main(){
 							targetFD = open(placeOut, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 							if(targetFD == -1){ 
 								perror("target open()"); 
-								lastStatus = 1;
 								fflush(stdout);
 								exit(1);
 							}
 							rdResult = dup2(targetFD, 1);
 							if(rdResult == -1){ 
 								perror("target dup2()"); 
-								lastStatus = 1;
 								fflush(stdout);
 								exit(2);
 							}
@@ -253,14 +272,12 @@ int main(){
 							targetFD = open("/dev/null", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 							if(targetFD == -1){ 
 								perror("target open()"); 
-								lastStatus = 1;
 								fflush(stdout);
 								exit(1);
 							}
 							rdResult = dup2(targetFD, 1);
 							if(rdResult == -1){ 
 								perror("target dup2()"); 
-								lastStatus = 1;
 								fflush(stdout);
 								exit(2);
 							}
@@ -291,11 +308,8 @@ int main(){
 							}
 						}
 						numbChildren = numbChildren - 1;
-						if(WIFEXITED(lastStatus) != 0){// check for normal completion
-							lastStatus = (WIFEXITED(lastStatus));// record it if so
-						}
-						else if(WIFSIGNALED(lastStatus) != 0){ // otherwise, check for if singaled
-							lastStatus = (WIFSIGNALED(lastStatus));// record it if so
+						if(WIFSIGNALED(lastStatus) != 0){ // check for if singaled
+							statusCMD();
 						}
 					}
 					else{
@@ -334,7 +348,7 @@ void announceBGfinishes(){
 				printf("exit value %d\n", lastStatusBG);
 			}
 			else if(WIFSIGNALED(lastStatusBG) != 0){ // otherwise, check for if singaled
-				printf("exit value %d\n", lastStatusBG);
+				printf("terminated by signal %d\n", lastStatusBG);
 			}
 			fflush(stdout);
 		}
@@ -348,4 +362,18 @@ void printPrompt(){
 	printf(": ");
 	fflush(stdout);
 	return;
+}
+
+void statusCMD(){
+	if(lastStatus == 0){
+		printf("exit value %d\n", lastStatus);
+	}
+	else if(WIFEXITED(lastStatus) != 0){//
+		printf("exit value %d\n", WEXITSTATUS(lastStatus));
+		fflush(stdout);
+	}
+	else{// I dont think ever actually called from status cmd but here so that this function can be used inside the parent code above too
+		printf("terminated by signal %d\n", WTERMSIG(lastStatus));
+		fflush(stdout);
+	}
 }
