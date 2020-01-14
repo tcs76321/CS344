@@ -1,5 +1,4 @@
 #!/bin/bash
-# bash is fun :D
 
 helper1=0 # helper variable for seeing if we need to deal with cat piping and stdin
 helper2="$#" # helper variable for tracking number of arguements before being adjusted with the line at the bottom of this file which like shifts the parameters variables back one, 1 goes to 2 and so on
@@ -14,12 +13,6 @@ then
 elif [ "$#" = "2" ] && [ $1 == "dims" ] # two arguements
 then
 	datafilepath=$2
-#elif [[ "$1" -eq "add" ]] && [ "$#" = "1" ]
-#then
-#	echo error_with_add_0_arguements_error 1>&2
-#	rm -f ./datafileDos
-#	rm -f ./datafileUno
-#	exit 1
 fi
 
 dims(){ # at first, I mistakenly put in the the top level if else staterment 
