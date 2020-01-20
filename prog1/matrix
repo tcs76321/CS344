@@ -1,7 +1,6 @@
 #!/bin/bash
 
 helper1=0 # helper variable for seeing if we need to deal with cat piping and stdin
-helper2="$#" # helper variable for tracking number of arguements before being adjusted with the line at the bottom of this file which like shifts the parameters variables back one, 1 goes to 2 and so on
 datafilepath="datafileUno" # store string datafileUno as datafilepath variable
 helper3=0
 datafilepath2="datafileDos"
@@ -48,7 +47,7 @@ dims(){ # at first, I mistakenly put in the the top level if else staterment
 			exit 1
 		fi
 	else #3 the first one was for if not catted and then now this one below is designed for if catted true
-		if [[ "$helper2" -gt  2 ]]
+		if [[ "$#" -gt  2 ]]
 		then
 			echo incorrect number of parameters yo 1>&2
 			rm -f ./datafileUno
