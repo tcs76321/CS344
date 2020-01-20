@@ -1,13 +1,13 @@
 #!/bin/bash
 
-helper1=0 # helper variable for seeing if we need to deal with cat piping and stdin
+dimsNstdN=0 # helper variable for seeing if we need to deal with cat piping and stdin
 
 datafilepath="datafileUno" # store string datafileUno as datafilepath variable
 datafilepath2="datafileDos"
 
 if [ "$#" = "1" ] && [ $1 == "dims" ]
 then
-	helper1=3 # use helper variable, the number three is irrelevant 
+	dimsNstdN=3 # use helper variable, the number three is irrelevant 
 	cat > "$datafilepath" # make a file basically
 elif [ "$#" = "2" ] && [ $1 == "dims" ] # two arguements
 then
@@ -15,7 +15,7 @@ then
 fi
 
 dims(){ # at first, I mistakenly put in the the top level if else staterment 
-	if [[ "$helper1" -eq 0 ]] # then later on it was required due to
+	if [[ "$dimsNstdN" -eq 0 ]] # then later on it was required due to
 	then # the fact that I later put in thingse that madke them neccesary
 		if [[ "$#" -gt  1 ]]
 		then
