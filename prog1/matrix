@@ -1,42 +1,42 @@
 #!/bin/bash
 
-dimsNstdN=0 # helper variable for seeing if we need to deal with cat piping and stdin
+dimsNstdN=0 # helper variable for seeing if we need to deal with cat piping and stdin, only used with dims because I did a streamlined version for some of the functions
 
 datafilepath="datafileUno" # store string datafileUno as datafilepath variable
 datafilepath2="datafileDos"
 
-if [ "$#" = "1" ] && [ $1 == "dims" ]
+if [ "$#" = "1" ] && [ $1 == "dims" ] # check for if dims and being passed through stdin via piping or not
 then
-	dimsNstdN=3 # use helper variable, the number three is irrelevant 
-	cat > "$datafilepath" # make a file basically
-elif [ "$#" = "2" ] && [ $1 == "dims" ] # two arguements
+	dimsNstdN=3 # use helper variable, the number three is irrelevant, just not 0 now
+	cat > "$datafilepath" # make a file basically, from that stdin stream
+elif [ "$#" = "2" ] && [ $1 == "dims" ] # two arguements, so not stdin in any way and dims 
 then
 	datafilepath=$2
-fi
+fi # this is taken care of automatically in the way I handle the rest
 
-dims(){ # at first, I mistakenly put in the the top level if else staterment 
-	if [[ "$dimsNstdN" -eq 0 ]] # then later on it was required due to
-	then # the fact that I later put in thingse that madke them neccesary
-		if [[ "$#" -gt  1 ]]
+dims(){
+	if [[ "$dimsNstdN" -eq 0 ]] # normal, not from stdin, was passed a file
+	then
+		if [[ "$#" -gt  1 ]] # check for too many arguements, 2 or more, no negative numbers, leaving 1, 0 sets dimsNstdN to !0 so only correct arguements from this
 		then
-			echo incorrect number of parameters 1>&2
-			rm -f ./datafileDos
+			echo incorrect number of parameters 1>&2 # print error message to stderr
+			rm -f ./datafileDos # clean up files
 			rm -f ./datafileUno
-			exit 1
-		elif [[ -r "$1" ]]
+			exit 1 # set exit code to not 0, 1 is general error, misc
+		elif [[ -r "$1" ]] # check that single static file exists and is readable
 		then
-			jj=0
-			ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+			rows=0 # simple iterator, for lines and columns
+			columns=0
 			while read myLine
 			do 
-				jj=`expr $jj + 1`
+				rows=`expr $rows + 1`
 				for i in $myLine
 				do
-					ii=`expr $ii + 1`
+					columns=`expr $columns + 1` # count each individual number of the matrix,
 				done
 			done < $datafilepath
-			ii=`expr $ii / $jj`
-			echo "$jj" "$ii"
+			columns=`expr $columns / $rows`  # and then divide by rows, lines, to get actual columns
+			echo "$rows" "$columns"
 			rm -f ./datafileDos
 			rm -f ./datafileUno
 			exit 0
