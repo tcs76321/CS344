@@ -55,24 +55,23 @@ dims(){
 			exit 1
 		elif [[ -r "$datafilepath" ]]
 		then
-			jj=0
-			ii=0
+			rows=0
+			columns=0
 			while read myLine
 			do 
-				jj=`expr $jj + 1`
+				rows=`expr $rows + 1`
 				for i in $myLine
 				do
-					ii=`expr $ii + 1`
+					columns=`expr $columns + 1`
 				done
 			done < $datafilepath
-			# i=`expr $i - 1`
-			ii=`expr $ii / $jj`
-			echo "$jj" "$ii"
+			columns=`expr $columns / $rows`
+			echo "$rows" "$columns"
 			rm -f ./datafileUno
 			rm -f ./datafileDos
 			exit 0
 		else
-			echo inaccessible file or some other issue with -r $1
+			echo inaccessible file or some other issue with -r 1>&2
 			rm -f ./datafileUno
 			rm -f ./datafileDos
 			exit 1
@@ -91,7 +90,7 @@ transpose(){
 	then
 # ----------------- getting dims start
 		jj=0
-		ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		ii=0
 		while read myLine
 		do 
 			jj=`expr $jj + 1`
@@ -147,7 +146,7 @@ mean(){
 	then
 # ----------------- getting dims start
 		jj=0
-		ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		ii=0
 		while read myLine
 		do 
 			jj=`expr $jj + 1`
@@ -228,7 +227,7 @@ add(){
 	then
 # ----------------- getting dims start
 		jj=0
-		ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		ii=0 
 		while read myLine
 		do 
 			jj=`expr $jj + 1`
@@ -241,7 +240,7 @@ add(){
 
 
 		jj2=0
-		ii2=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		ii2=0 
 		while read myLine2
 		do 
 			jj2=`expr $jj2 + 1`
@@ -315,7 +314,7 @@ multiply(){
 	then
 # ----------------- getting dims start
 		jj=0
-		ii=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		ii=0
 		while read myLine
 		do 
 			jj=`expr $jj + 1`
@@ -328,7 +327,7 @@ multiply(){
 
 
 		jj2=0
-		ii2=0 # ii because origanally i and was obviously and issue with the i in the for loop below it, the error was unseen with many types of matrices such as left right up down symetrically ascending matrics as well as other types of consisenly ascending matrics, i assume
+		ii2=0
 		while read myLine2
 		do 
 			jj2=`expr $jj2 + 1`
