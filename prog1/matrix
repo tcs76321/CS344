@@ -342,58 +342,45 @@ multiply(){
 # ----------------- gettings dims DONE
 # -----------------------------------
 # ------------------- checking dims
-		if [[ "$ii" -ne "$jj2" ]]
+		if [[ "$ii" -ne "$ii2" ]] || [[ "$jj" -ne "$jj2" ]]
 		then
-			echo wrongs dims on multiply 1>&2
+			echo wrongs dims on add 1>&2
 			rm -f ./datafileUno
 			rm -f ./datafileDos
 			exit 1
 		fi
 # ---------------------- Done with that
 
-		#this my best attempt that I cant get in before the second due date penalty
-		#this is what I am tring to do 
-		#adds all releveant numbers to a two arrays
-		# matirx A is on indicese 01 to n-1 where n is number of elements in matrix A or ie the sides times each other
-		# adding line by line elemenent by elements so it goes [1]=a11 [2]=a12 
-		# I am HOPING that this will allow me to use straight forward logic to echo strings I fill
-: '	
-		meArrayA=()
-		meArrayA+=0
-		while read mA
-		do
-			for mai in $mA
-			do
-				meArrayA+=($mai)
-			done
-		done < $1
-		echo "${meArrayA[*]}"
-		meArrayB=()
-		meArrayB+=0
-		while read mB
-		do
-			for mbi in $mB
-			do
-				meArrayB+=($mbi)
-			done
-		done < $1
-		echo "${meArrayB[*]}"
-		total=`expr $ii2 * $jj `
-		
+		cat $1 > "$datafilepath"
+		cat $2 > "$datafilepath2"
+
 		audiput=""
-		for (( tcs=0; tcs<${total}; tcs++ ));
+
+		while read var1 <&4 && read var2 <&5
 		do
-			aaa=0
-			for
+			audiput=""
+			pleaseGod=0
+			for ia in $var1
 			do
-				aaa=`expr $ia + $ib`
-				audiput="${audiput}$aaa\t"
+				pleaseGod2=0
+				for ib in $var2
+				do
+					if [[ "$pleaseGod" -eq "$pleaseGod2" ]]
+					then
+						aaa=0
+						aaa=`expr $ia + $ib`
+						audiput="${audiput}$aaa\t"
+						break
+					fi
+					pleaseGod2=$((pleaseGod2+1))
+				done
+				pleaseGod=$((pleaseGod+1))
 			done
-		done
-		audiput=${audiput%?}
-		audiput=${audiput%?}
-		echo -e "$audiput"
-'
+			audiput=${audiput%?}
+			audiput=${audiput%?}
+			echo -e "$audiput"
+		done 4<datafileUno 5<datafileDos
+		
 		rm -f ./datafileDos
 		rm -f ./datafileUno
 		exit 0
