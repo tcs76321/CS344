@@ -335,7 +335,7 @@ multiply(){
 			do
 				colsB=`expr $colsB + 1`
 			done
-		done < $1
+		done < $2
 		colsB=`expr $colsB / $rowsB`
 # ----------------- gettings dims DONE
 # -----------------------------------
