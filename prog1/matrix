@@ -304,7 +304,7 @@ add(){
 }
 
 multiply(){
-	if [[ "$#" -ne 2 ]]
+	if [[ "$#" -ne 2 ]] # check correct number of arguements
 	then
 		echo yoincorrectnumberofparametersyo 1>&2
 		rm -f ./datafileUno
@@ -339,18 +339,16 @@ multiply(){
 		ii2=`expr $ii2 / $jj2`
 # ----------------- gettings dims DONE
 # -----------------------------------
-# ------------------- checking dims
-		if [[ "$ii" -ne "$ii2" ]] || [[ "$jj" -ne "$jj2" ]]
+# ------------------- checking dims for multiplication
+		if [[ "$ii" -ne "$jj2" ]]
 		then
-			echo wrongs dims on add 1>&2
+			echo wrongs dims on multiply 1>&2
 			rm -f ./datafileUno
 			rm -f ./datafileDos
 			exit 1
 		fi
 # ---------------------- Done with that
 
-		cat $1 > "$datafilepath"
-		cat $2 > "$datafilepath2"
 		
 		arrayofA=()
 		
