@@ -372,8 +372,8 @@ multiply(){
 		outPut=""
 		
 		# variables with proper dimensions of result matrix
-		resMatrixRows = "$rowsA"
-		resMatrixColumns = "$colsB"
+		resMatrixRows="$rowsA"
+		resMatrixColumns="$colsB"
 		
 		echo $rowsA
 		echo $colsB
