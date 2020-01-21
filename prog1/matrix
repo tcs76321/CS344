@@ -396,6 +396,10 @@ multiply(){
 			resM="${resM}\n"
 		done
 		
+		# clean up weird extra newline
+		resM=${resM%?}
+		resM=${resM%?}
+		
 		# echo resulting Matrix
 		echo -e "$resM"
 		
