@@ -375,9 +375,6 @@ multiply(){
 		resMatrixRows="$rowsA"
 		resMatrixColumns="$colsB"
 		
-		echo $resMatrixRows
-		echo $resMatrixColumns
-		
 		# variable to start at 0
 		
 		
