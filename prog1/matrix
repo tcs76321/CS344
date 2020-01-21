@@ -394,6 +394,7 @@ multiply(){
 			done
 			# and then remove extra tab
 			resM=${resM%?}
+			resM=${resM%?} # need a second one to remove first \ and then t
 			# apply newline
 			resM="${resM}\n"
 		done
