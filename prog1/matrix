@@ -35,7 +35,7 @@ dims(){
 					columns=`expr $columns + 1` # count each individual number of the matrix,
 				done
 			done < $datafilepath
-			columns=`expr $columns / $rows`  # and then divide by rows, lines, to get actual columns
+			columns=`expr $columns / $rows` # and then divide by rows, lines, to get actual columns
 			echo "$rows" "$columns"
 			rm -f ./datafileDos
 			rm -f ./datafileUno
@@ -46,10 +46,10 @@ dims(){
 			rm -f ./datafileUno
 			exit 1
 		fi
-	else #3 the first one was for if not catted and then now this one below is designed for if catted true
-		if [[ "$#" -gt  2 ]]
+	else # the first one was for if not catted and then now this one below is designed for it
+		if [[ "$#" -gt  2 ]] # 
 		then
-			echo incorrect number of parameters yo 1>&2
+			echo incorrect number of parameters 1>&2 # print error message to stderr
 			rm -f ./datafileUno
 			rm -f ./datafileDos
 			exit 1
@@ -62,10 +62,10 @@ dims(){
 				rows=`expr $rows + 1`
 				for i in $myLine
 				do
-					columns=`expr $columns + 1`
+					columns=`expr $columns + 1` # count each individual number of the matrix,
 				done
 			done < $datafilepath
-			columns=`expr $columns / $rows`
+			columns=`expr $columns / $rows` # and then divide by rows, lines, to get actual columns
 			echo "$rows" "$columns"
 			rm -f ./datafileUno
 			rm -f ./datafileDos
