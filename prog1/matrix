@@ -369,25 +369,37 @@ multiply(){
 			done
 		done < $2
 		
-		outPut=""
+		resM=""
 		
 		# variables with proper dimensions of result matrix
 		resMatrixRows="$rowsA"
 		resMatrixColumns="$colsB"
 		
-		echo $rowsA
-		echo $colsB
+		echo $resMatrixRows
+		echo $resMatrixColumns
 		
 		# variable to start at 0
 		
-		# loop number of rows to append each row of matrix top to bottom
 		
+		entry=0
+		
+		# loop number of rows to append each row of matrix top to bottom
+		for ((rowIter = 0 ; rowIter < $resMatrixRows ; rowIter++)); do
 			# first append the numbers and tabs
 			# loop for correct number of columns
-				# first append with proper number
-				# add a tab
-			# and then remove extra tab and and apply
+			for ((colIter = 0 ; colIter < $resMatrixColumns ; colIter++)); do
+				# TODO calculate proper number into entry
+				# append with proper number and tab
+				resM="${resM}$entry\t"
+			done
+			# and then remove extra tab
+			resM=${resM%?}
+			# apply newline
+			resM="${resM}\n"
+		done
 		
+		# echo resulting Matrix
+		echo -e "$resM"
 		
 		rm -f ./datafileDos
 		rm -f ./datafileUno
