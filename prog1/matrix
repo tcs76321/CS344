@@ -313,34 +313,34 @@ multiply(){
 	elif [[ -r "$1" ]] && [[ -r "$2" ]]
 	then
 # ----------------- getting dims start
-		jj=0
-		ii=0
+		rowsA=0
+		colsA=0
 		while read myLine
 		do 
-			jj=`expr $jj + 1`
+			rowsA=`expr $rowsA + 1`
 			for iiii in $myLine
 			do
-				ii=`expr $ii + 1`
+				colsA=`expr $colsA + 1`
 			done
 		done < $1
-		ii=`expr $ii / $jj`
+		colsA=`expr $colsA / $rowsA`
 
 
-		jj2=0
-		ii2=0
-		while read myLine2
+		rowsB=0
+		colsB=0
+		while read myLine
 		do 
-			jj2=`expr $jj2 + 1`
-			for iiii2 in $myLine2
+			rowsB=`expr $rowsB + 1`
+			for iiii in $myLine
 			do
-				ii2=`expr $ii2 + 1`
+				colsB=`expr $colsB + 1`
 			done
-		done < $2
-		ii2=`expr $ii2 / $jj2`
+		done < $1
+		colsB=`expr $colsB / $rowsB`
 # ----------------- gettings dims DONE
 # -----------------------------------
 # ------------------- checking dims for multiplication
-		if [[ "$ii" -ne "$jj2" ]]
+		if [[ "$colsA" -ne "$rowsB" ]]
 		then
 			echo wrongs dims on multiply 1>&2
 			rm -f ./datafileUno
@@ -350,8 +350,8 @@ multiply(){
 # ---------------------- Done with that
 
 		
+		# get 1D arrays for each matrix
 		arrayofA=()
-		
 		while read myLine
 		do 
 			for iiii in $myLine
@@ -359,10 +359,8 @@ multiply(){
 				arrayofA+=("$iiii")
 			done
 		done < $1
-
 		
 		arrayofB=()
-		
 		while read myLine
 		do 
 			for iiii in $myLine
@@ -371,13 +369,27 @@ multiply(){
 			done
 		done < $2
 		
-		echo ${arrayofA[@]}
-		echo ${arrayofB[@]}
+		outPut=""
+		
+		# variables with proper dimensions of result matrix
+		# resMatrixRows = "$"
+		# resMatrixColumns = "$"
+		
+		# variable to start at 0
+		
+		# loop number of rows to append each row of matrix top to bottom
+		
+			# first append the numbers and tabs
+			# loop for correct number of columns
+				# first append with proper number
+				# add a tab
+			# and then remove extra tab and and apply
+		
 		
 		rm -f ./datafileDos
 		rm -f ./datafileUno
 		exit 0
-	else
+	else # correct number of arguements but one of the two not readable
 		echo inaccessible file or some other issue with -r or!!!! dimensions!!!! 1>&2
 		rm -f ./datafileUno
 		rm -f ./datafileDos
@@ -386,4 +398,3 @@ multiply(){
 }
 
 "${@}"
-#$1 "${@:2}
