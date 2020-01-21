@@ -371,8 +371,8 @@ multiply(){
 			done
 		done < $2
 		
-		echo $arrayofA
-		echo $arrayofB
+		echo ${arrayofA[@]}
+		echo ${arrayofB[@]}
 		
 		rm -f ./datafileDos
 		rm -f ./datafileUno
