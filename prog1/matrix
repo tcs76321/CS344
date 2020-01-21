@@ -351,33 +351,30 @@ multiply(){
 
 		cat $1 > "$datafilepath"
 		cat $2 > "$datafilepath2"
-
-		audiput=""
-
-		while read var1 <&4 && read var2 <&5
-		do
-			audiput=""
-			pleaseGod=0
-			for ia in $var1
+		
+		arrayofA=()
+		
+		while read myLine
+		do 
+			for iiii in $myLine
 			do
-				pleaseGod2=0
-				for ib in $var2
-				do
-					if [[ "$pleaseGod" -eq "$pleaseGod2" ]]
-					then
-						aaa=0
-						aaa=`expr $ia + $ib`
-						audiput="${audiput}$aaa\t"
-						break
-					fi
-					pleaseGod2=$((pleaseGod2+1))
-				done
-				pleaseGod=$((pleaseGod+1))
+				arrayofA+=("$iiii")
 			done
-			audiput=${audiput%?}
-			audiput=${audiput%?}
-			echo -e "$audiput"
-		done 4<datafileUno 5<datafileDos
+		done < $1
+
+		
+		arrayofB=()
+		
+		while read myLine
+		do 
+			for iiii in $myLine
+			do
+				arrayofB+=("$iiii")
+			done
+		done < $2
+		
+		echo $arrayofA
+		echo $arrayofB
 		
 		rm -f ./datafileDos
 		rm -f ./datafileUno
