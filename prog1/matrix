@@ -5,11 +5,11 @@ dimsNstdN=0 # helper variable for seeing if we need to deal with cat piping and 
 datafilepath="datafileUno" # store string datafileUno as datafilepath variable
 datafilepath2="datafileDos"
 
-if [ "$#" = "1" ] && [ $1 == "dims" ] # check for if dims and being passed through stdin via piping or not
+if [ "$#" = "1" ] && [ "$1" == "dims" ] # check for if dims and being passed through stdin via piping or not
 then
 	dimsNstdN=3 # use helper variable, the number three is irrelevant, just not 0 now
 	cat > "$datafilepath" # make a file basically, from that stdin stream
-elif [ "$#" = "2" ] && [ $1 == "dims" ] # two arguements, so not stdin in any way and dims 
+elif [ "$#" = "2" ] && [ "$1" == "dims" ] # two arguements, so not stdin in any way and dims 
 then
 	datafilepath=$2
 fi # this is taken care of automatically in the way I handle the rest
@@ -27,15 +27,15 @@ dims(){
 		then
 			rows=0 # simple iterator, for lines and columns
 			columns=0
-			while read myLine
+			while read -r myLine
 			do 
-				rows=`expr $rows + 1`
+				rows=$(( rows + 1 ))
 				for i in $myLine
 				do
-					columns=`expr $columns + 1` # count each individual number of the matrix,
+					columns=$(( columns + 1)) # count each individual number of the matrix,
 				done
-			done < $datafilepath
-			columns=`expr $columns / $rows` # and then divide by rows, lines, to get actual columns
+			done < "$datafilepath"
+			columns=$(( columns / rows)) # and then divide by rows, lines, to get actual columns
 			echo "$rows" "$columns"
 			rm -f ./datafileDos
 			rm -f ./datafileUno
@@ -55,17 +55,20 @@ dims(){
 			exit 1
 		elif [[ -r "$datafilepath" ]]
 		then
+			warningFiller=0
 			rows=0
 			columns=0
-			while read myLine
+			while read -r myLine
 			do 
-				rows=`expr $rows + 1`
+				rows=$(( rows + 1 ))
 				for i in $myLine
 				do
-					columns=`expr $columns + 1` # count each individual number of the matrix,
+					columns=$((columns + 1)) # count each individual number of the matrix,
+					warningFiller="$i"
+					i="$warningFiller"
 				done
-			done < $datafilepath
-			columns=`expr $columns / $rows` # and then divide by rows, lines, to get actual columns
+			done < "$datafilepath"
+			columns=$(( columns / rows)) # and then divide by rows, lines, to get actual columns
 			echo "$rows" "$columns"
 			rm -f ./datafileUno
 			rm -f ./datafileDos
@@ -91,33 +94,33 @@ transpose(){
 # ----------------- getting dims start
 		jj=0
 		ii=0
-		while read myLine
+		while read -r myLine
 		do 
-			jj=`expr $jj + 1`
+			jj=$(( jj + 1 ))
 			for iiii in $myLine
 			do
-				ii=`expr $ii + 1`
+				ii=$(( ii + 1 ))
 			done
-		done < $1
-		ii=`expr $ii / $jj`
+		done < "$1"
+		ii=$(( ii / jj ))
 		
 		tempCol="tempcolfile"
 		tempRow="temprowfile"
 
 		indexH=1
 		
-		cut -f $indexH $1 > $tempCol
-		indexH=`expr $indexH + 1`
+		cut -f $indexH "$1" > $tempCol
+		indexH=$(( indexH + 1 ))
 		cat $tempCol | tr '\n' '\t' > $tempRow
 		truncate -s-1 $tempRow
 		echo >> $tempRow
-		for (( ijk=1; ijk<${ii}; ijk++ ));
+		for (( ijk=1; ijk<ii ; ijk++ ));
 		do
-			cut -f $indexH $1 > $tempCol
+			cut -f $indexH "$1" > $tempCol
 			cat $tempCol | tr '\n' '\t' >> $tempRow
 			truncate -s-1 $tempRow
 			echo >> $tempRow
-			indexH=`expr $indexH + 1`
+			indexH=$(( indexH + 1 ))
 		done
 
 		cat $tempRow
@@ -147,15 +150,15 @@ mean(){
 # ----------------- getting dims start
 		jj=0
 		ii=0
-		while read myLine
+		while read -r myLine
 		do 
-			jj=`expr $jj + 1`
+			jj=$(( jj + 1 ))
 			for iiii in $myLine
 			do
-				ii=`expr $ii + 1`
+				ii=$(( ii + 1 ))
 			done
-		done < $1
-		ii=`expr $ii / $jj`
+		done < "$1"
+		ii=$(( ii / jj ))
 		
 		tempCol="tempcolfile"
 		tempRow="temprowfile"
@@ -163,35 +166,35 @@ mean(){
 
 		indexH=1
 		
-		cut -f $indexH $1 > $tempCol
-		indexH=`expr $indexH + 1`
+		cut -f $indexH "$1" > $tempCol
+		indexH=$(( indexH + 1 ))
 		cat $tempCol | tr '\n' '\t' > $tempRow
 		truncate -s-1 $tempRow
 		echo >> $tempRow
-		for (( ijk=1; ijk<${ii}; ijk++ ));
+		for (( ijk=1; ijk<ii ; ijk++ ));
 		do
-			cut -f $indexH $1 > $tempCol
+			cut -f $indexH "$1" > $tempCol
 			cat $tempCol | tr '\n' '\t' >> $tempRow
 			truncate -s-1 $tempRow
 			echo >> $tempRow
-			indexH=`expr $indexH + 1`
+			indexH=$(( indexH + 1 ))
 		done
 
-		while read tLine
+		while read -r tLine
 		do
 			yt=0
 			dri=0
 			for mno in $tLine
 			do
-				yt=`expr $yt + $mno`
-				dri=`expr $dri + 1`
+				yt=$(( yt + mno ))
+				dri=$(( dri + 1 ))
 			done
 
 			if [[ "$yt" -gt "0" ]]
 			then
-				yt=$(( ( ( $yt + ( $dri / 2 ) ) / $dri ) ))
+				yt=$(( ( ( yt + ( dri / 2 ) ) / dri ) ))
 			else
-				yt=$(( ( ( $yt - ( $dri / 2 ) ) / $dri ) ))
+				yt=$(( ( ( yt - ( dri / 2 ) ) / dri ) ))
 			fi
 
 			echo "$yt" >> $tempCol2
@@ -228,20 +231,20 @@ add(){
 # ----------------- getting dims start
 		jj=0
 		ii=0 
-		while read myLine
+		while read -r myLine
 		do 
-			jj=`expr $jj + 1`
+			jj=$(( jj + 1 ))
 			for iiii in $myLine
 			do
-				ii=`expr $ii + 1`
+				ii=$(( ii + 1 ))
 			done
-		done < $1
-		ii=`expr $ii / $jj`
+		done < "$1"
+		ii=$(( ii / jj ))
 
 
 		jj2=0
 		ii2=0 
-		while read myLine2
+		while read -r myLine2
 		do 
 			jj2=`expr $jj2 + 1`
 			for iiii2 in $myLine2
