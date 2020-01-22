@@ -243,16 +243,18 @@ add(){
 
 
 		jj2=0
-		ii2=0 
+		ii2=0
+		warningFiller=0
 		while read -r myLine2
 		do 
-			jj2=`expr $jj2 + 1`
+			jj2=$(( jj2 + 1 ))
 			for iiii2 in $myLine2
 			do
-				ii2=`expr $ii2 + 1`
+				ii2=$(( ii2 + 1 ))
+				warningFiller=$iiii2
 			done
-		done < $2
-		ii2=`expr $ii2 / $jj2`
+		done < "$2"
+		ii2=$(( ii2 / jj2 ))
 # ----------------- gettings dims DONE
 # -----------------------------------
 # ------------------- checking dims
@@ -265,12 +267,12 @@ add(){
 		fi
 # ---------------------- Done with that
 
-		cat $1 > "$datafilepath"
-		cat $2 > "$datafilepath2"
+		cat "$1" > "$datafilepath"
+		cat "$2" > "$datafilepath2"
 
 		audiput=""
 
-		while read var1 <&4 && read var2 <&5
+		while read -r var1 <&4 && read -r var2 <&5
 		do
 			audiput=""
 			pleaseGod=0
@@ -282,7 +284,7 @@ add(){
 					if [[ "$pleaseGod" -eq "$pleaseGod2" ]]
 					then
 						aaa=0
-						aaa=`expr $ia + $ib`
+						aaa=$(( ia + ib ))
 						audiput="${audiput}$aaa\t"
 						break
 					fi
@@ -318,28 +320,28 @@ multiply(){
 # ----------------- getting dims start
 		rowsA=0
 		colsA=0
-		while read myLine
+		while read -r myLine
 		do 
-			rowsA=`expr $rowsA + 1`
+			rowsA=$(( rowsA + 1 ))
 			for iiii in $myLine
 			do
-				colsA=`expr $colsA + 1`
+				colsA=$(( colsA + 1 ))
 			done
-		done < $1
-		colsA=`expr $colsA / $rowsA`
+		done < "$1"
+		colsA=$(( colsA / rowsA ))
 
 
 		rowsB=0
 		colsB=0
-		while read myLine
+		while read -r myLine
 		do 
-			rowsB=`expr $rowsB + 1`
+			rowsB=$(( rowsB + 1 ))
 			for iiii in $myLine
 			do
-				colsB=`expr $colsB + 1`
+				colsB=$(( colsB + 1 ))
 			done
-		done < $2
-		colsB=`expr $colsB / $rowsB`
+		done < "$2"
+		colsB=$(( colsB / rowsB ))
 # ----------------- gettings dims DONE
 # -----------------------------------
 # ------------------- checking dims for multiplication
@@ -355,22 +357,22 @@ multiply(){
 		
 		# get 1D arrays for each matrix
 		arrayofA=()
-		while read myLine
+		while read -r myLine
 		do 
 			for iiii in $myLine
 			do
 				arrayofA+=("$iiii")
 			done
-		done < $1
+		done < "$1"
 		
 		arrayofB=()
-		while read myLine
+		while read -r myLine
 		do 
 			for iiii in $myLine
 			do
 				arrayofB+=("$iiii")
 			done
-		done < $2
+		done < "$2"
 		
 		resM=""
 		
@@ -378,7 +380,7 @@ multiply(){
 		resMatrixRows="$rowsA"
 		resMatrixColumns="$colsB"
 		
-		lengthA=${#arrayofA[@]}
+		# lengthA=${#arrayofA[@]}
 		lengthB=${#arrayofB[@]}
 		
 		# variables need tat start at 0
@@ -389,42 +391,42 @@ multiply(){
 		# for keeping track and thus calculating where the right numbers on the 1Ds are
 		indexA=0 # this is changed back to 0 for first calculation of the first entry, entry resM11
 		indexB=0
-		counterA=`expr 0 - $colsA` # count which row of A, at the end of making each line we add to counterA the width of matrix A thus shiftin
+		counterA=$(( 0 - colsA )) # count which row of A, at the end of making each line we add to counterA the width of matrix A thus shiftin
 	
 		# for (( i=0; i<${len}; i++ ));
 		
 		# loop number of rows to append each row of matrix top to bottom
-		for (( rowIter=0 ; rowIter<${resMatrixRows} ; rowIter++ )); do # unique dimension of A
+		for (( rowIter=0 ; rowIter<resMatrixRows ; rowIter++ )); do # unique dimension of A
 			# first append the entries and tabs
 			# loop for correct number of columns
 			# after each loop through we need to first reset some things
 			indexB=0
 			# and counter needs to be increased the width of A
 			# entered with a negative number first go around this makes it 0 and there after increments such to be used to reset indexA to be the first half pair with the current row of A
-			counterA=`expr $counterA + $colsA` #, this is handled for first go around by setting indexA initialy to 0 minus widthA and afterwards push the row of A down one
+			counterA=$(( counterA + colsA )) #, this is handled for first go around by setting indexA initialy to 0 minus widthA and afterwards push the row of A down one
 			indexA="$counterA" # this is changed back to 0 for first calculation of the first entry, entry resM11
-			for ((colIter=0 ; colIter<${resMatrixColumns} ; colIter++ )); do # unique dimension B
+			for ((colIter=0 ; colIter<resMatrixColumns ; colIter++ )); do # unique dimension B
 				# calculate proper number into entry
 				# this number is found by adding the following fixed number of pair which are spaced consistently allowing our use of 1D arrays
 				entry=0 # reset for adding onto self
-				for ((pairsIter=0 ; pairsIter<${nMultAddsPerEntry} ; pairsIter++ )); do # SHARED dimension across A and B that is number of multiplied pairs of numbers added together
+				for ((pairsIter=0 ; pairsIter<nMultAddsPerEntry ; pairsIter++ )); do # SHARED dimension across A and B that is number of multiplied pairs of numbers added together
 					# set matA to be proper number for A
 					matA=${arrayofA[$indexA]}
 					# change index to be next index, the last time this will be an invalid one unused as it is changed in the last iteration 
-					indexA=`expr $indexA + 1`
+					indexA=$(( indexA + 1 ))
 					# TODO however, indices will also be used one OR more times so
 					# set matB to be proper number for B
 					matB=${arrayofB[$indexB]}
-					indexB=`expr $indexB + $colsB`
+					indexB=$(( indexB + colsB ))
 					# multiply holders for matrix A against matrixB and equal entry to it
-					matB=`expr $matA * $matB` # calculate
-					entry=`expr $entry + $matB` # save
+					matB=$(( matA * matB )) # calculate
+					entry=$(( entry + matB )) # save
 				done # repeat until all needed pairs are found multiplied and added up together and indexA/B become invalid or incorrect
 				# check if index B went over, invalid
-				if [[ "$indexB" -gt `expr $lengthB - 1` ]]
+				if [[ "$indexB" -gt $(( lengthB - 1 )) ]]
 				then	
-					indexB=`expr $indexB - $lengthB` # if so subtract length of 1dArrayOfB
-					indexB=`expr $indexB + 1` # and add one to indexB to get next column
+					indexB=$(( indexB - lengthB )) # if so subtract length of 1dArrayOfB
+					indexB=$(( indexB + 1 )) # and add one to indexB to get next column
 				fi
 				# append with proper number and tab
 				resM="${resM}$entry\t"
