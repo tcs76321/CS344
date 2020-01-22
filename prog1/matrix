@@ -375,19 +375,58 @@ multiply(){
 		resMatrixRows="$rowsA"
 		resMatrixColumns="$colsB"
 		
-		# variable to start at 0
+		lengthA=${#arrayofA[@]}
+		lengthB=${#arrayofB[@]}
 		
-		
+		# variables need tat start at 0
+		matA=0
+		matB=0
 		entry=0
+		nMultAddsPerEntry="$colsA" # which equals row of B
+		# for keeping track and thus calculating where the right numbers on the 1Ds are
+		indexA=0 # this is changed back to 0 for first calculation of the first entry, entry resM11
+		indexB=0
+		counterA=`expr 0 - $colsA` # count which row of A, at the end of making each line we add to counterA the width of matrix A thus shiftin
+	
+		# for (( i=0; i<${len}; i++ ));
 		
 		# loop number of rows to append each row of matrix top to bottom
-		for ((rowIter = 0 ; rowIter < $resMatrixRows ; rowIter++)); do
-			# first append the numbers and tabs
+		for (( rowIter=0 ; rowIter<${resMatrixRows} ; rowIter++ )); do # unique dimension of A
+			# first append the entries and tabs
 			# loop for correct number of columns
-			for ((colIter = 0 ; colIter < $resMatrixColumns ; colIter++)); do
-				# TODO calculate proper number into entry
+			# after each loop through we need to first reset some things
+			indexB=0
+			# and counter needs to be increased the width of A
+			# entered with a negative number first go around this makes it 0 and there after increments such to be used to reset indexA to be the first half pair with the current row of A
+			counterA=`expr $counterA + $colsA` #, this is handled for first go around by setting indexA initialy to 0 minus widthA and afterwards push the row of A down one
+			indexA="$counterA" # this is changed back to 0 for first calculation of the first entry, entry resM11
+			for ((colIter=0 ; colIter<${resMatrixColumns} ; colIter++ )); do # unique dimension B
+				# calculate proper number into entry
+				# this number is found by adding the following fixed number of pair which are spaced consistently allowing our use of 1D arrays
+				entry=0 # reset for adding onto self
+				for ((pairsIter=0 ; pairsIter<${nMultAddsPerEntry} ; pairsIter++ )); do # SHARED dimension across A and B that is number of multiplied pairs of numbers added together
+					# set matA to be proper number for A
+					matA=${arrayofA[$indexA]}
+					# change index to be next index, the last time this will be an invalid one unused as it is changed in the last iteration 
+					indexA=`expr $indexA + 1`
+					# TODO however, indices will also be used one OR more times so
+					# set matB to be proper number for B
+					matB=${arrayofB[$indexB]}
+					indexB=`expr $indexB + $colsB`
+					# multiply holders for matrix A against matrixB and equal entry to it
+					matB=`expr $matA * $matB` # calculate
+					entry=`expr $entry + $matB` # save
+				done # repeat until all needed pairs are found multiplied and added up together and indexA/B become invalid or incorrect
+				# check if index B went over, invalid
+				if [[ "$indexB" -gt `expr $lengthB - 1` ]]
+				then	
+					indexB=`expr $indexB - $lengthB` # if so subtract length of 1dArrayOfB
+					indexB=`expr $indexB + 1` # and add one to indexB to get next column
+				fi
 				# append with proper number and tab
 				resM="${resM}$entry\t"
+				# we need to reset indexA to what we entered with to get next entry with same row of A
+				indexA="$counterA" # another reason to use the counterA
 			done
 			# and then remove extra tab
 			resM=${resM%?}
