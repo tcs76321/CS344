@@ -199,7 +199,7 @@ void * timeKeeperThread(void * arg){
 		exit(EXIT_FAILURE);
 	}
 	// prepare what is to be written
-	if(strftime(stringToWrite, sizeof(stringToWrite), "%I:%M%p, %A, %B %d, %Y", tmp) == 0){
+	if(strftime(stringToWrite, sizeof(stringToWrite), "%l:%M%P, %A, %B %e, %Y", tmp) == 0){
 		fprintf(stderr, "strftime returned 0");
 		exit(EXIT_FAILURE);
 	}
@@ -266,7 +266,9 @@ int main(void){
 			if(i < curRoom->numbConnects - 1){
 				printf(", ");
 			}
+			//printf("%c", 46);
 		}
+		printf("%c", 46);
 		gtL:
 		printf("\nWHERE TO? >");// no space no newline
 		scanf("%s", inputRoom);//take in a string
@@ -291,7 +293,7 @@ int main(void){
 			nread = read(file_d, readBuffer, sizeFile);
 			// format if needed
 			// out put stuff, shouldn't need a newline
-			printf(" %s", readBuffer);
+			printf("%s", readBuffer);
 			// spawn another time thread the other time thread has finished and doesn't exit now
 			pthread_create(&(tkt), NULL, &timeKeeperThread, NULL);// which promptly begins waiting to lock what we just locked
 			printf("\n");// formatting
