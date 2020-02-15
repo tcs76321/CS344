@@ -1,11 +1,10 @@
 # Trevor Stahl
 # stahltr
-# 11/11/2019
-# CS 344 400 F2019
+# 2/15/2020
+# CS 344 400 W2020
 # program py - python exploration
 # used lines from pynative.com/python-generate-random-string/
-# and from bytes.com/topic/answers/673613-how-insert-new-line-end-file-logfile
-# ** URLS typed by hand because on school server **
+# ** URL typed by hand because on school server **
 # and used some code from this class too I think, atleast the assignment page
 
 import string
@@ -14,18 +13,18 @@ import sys
 
 fileNames = ["Uno.txt", "Dos.txt", "Tres.txt"]
 
-for x in fileNames:
-	f = open(x, "w")
+for fileName in fileNames:
+	file_ = open(fileName, "w") # truncates
 	stuff = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
-	f.write(stuff)
-	f.close()
-	f =  open(x, "a")
-	f.write('\n')
-	f.close()
-	f = open(x, "r")
-	sys.stdout.write(f.read())
+	file_.write(stuff)
+	file_.close()
+	file_ = open(fileName, "a") # append
+	file_.write('\n')
+	file_.close()
+	file_ = open(fileName, "r") # read
+	sys.stdout.write(file_.read())
 
-AAA = random.randint(1, 42)
+AAA = random.randint(1, 42) # randint is inclusive
 BBB = random.randint(1, 42)
 CCC = AAA * BBB
 print(AAA)
