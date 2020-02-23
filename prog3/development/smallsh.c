@@ -9,32 +9,13 @@
 
 /* UPDATE:
  *
- * Mr. Tran to help you grade I wanted to let you know what I did and did not get done since you graded last
+ * To the Honorable Jacob Seawell to help you grade I wanted to let you know what I did and did not get done 
  *
- * my code was not passing the ls status 0 test
+ * As far as I can tell I have everything working except:
  *
- * it now does
- *
- * and also badfile status used to give 256 and non sense number( I wasnt using WEXITSTATUS before)
- * and now it does gives 1 as it should
- *
- * the handling for termination signals and stuff was not correct before and was setting lastStatus to 1 always which was the issue
- *
- * I also never printed out the signal as terminated by signal but was still doing exit value %d for
- *
- * I fixed that and now terminated signals could theoretically work but I did not check it to be honest
- *
- * I only double checked, ls status exit, and badfile status exit
- *
- *
- *
- * The following is still true I did not do anything more to try and and handle signals beyond what is commented out, and $$ is still not handled either
- * */
-/* 
-*** I was able to get everything done except for:
-signals, 
-and interpretting $$
-I think I hope ***
+ * signals, switch ctrl-Z and ctrl-C
+ * and interpretting $$
+ * I think I hope ***
 */
 
 pid_t childPID; // pid to hold child processes that were background
