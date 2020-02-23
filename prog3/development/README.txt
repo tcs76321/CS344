@@ -19,6 +19,5 @@ CMD to compile:
 gcc -o smallsh smallsh.c -std=gnu99
 
 NOTES:
-*I tried my best to handle trailing spaces but I don't think it works perfectly with & and backgrounds, the assignment specs didn't speak on this at all though so yeah*
-*Submitting early with something that works, still dont have ctrl-C and ctrl-Z being switched, and background shtuff*
-*** According to my estimates reading and interpretting the mytestresults and the grade I got for this same submission last quarter I am hoping for 140/180 including points for comments, style  and readabillity ***
+* I do not have $$ interpolation *
+* I do not have ctrl-C replaced with ctrl-Z, or whatever it is *

@@ -15,7 +15,7 @@
  *
  * signals, switch ctrl-Z and ctrl-C
  * and interpretting $$
- * I think I hope ***
+ * I think I hope, I hope, I think ***
 */
 
 pid_t childPID; // pid to hold child processes that were background
