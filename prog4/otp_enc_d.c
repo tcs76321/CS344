@@ -30,7 +30,7 @@ int main(int argc, char * argv[])
 	struct sockaddr_in serverAddress, clientAddress;
 
 	// Check usage & args
-	if ((argc < 2) || (argc > 2)) { fprintf(stderr,"USAGE: %s port\n", argv[0]); exit(1); }
+	if (argc < 2) { fprintf(stderr,"USAGE: %s port\n", argv[0]); exit(1); }
 
 
 	// Set up the address struct for this process (the server)
