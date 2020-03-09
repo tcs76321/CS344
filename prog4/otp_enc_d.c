@@ -17,7 +17,7 @@
 #include <netinet/in.h>
 
 // constant definitions
-#define BUFFERSIZE 1024
+#define BUFFERSIZE 3000
 
 void error(const char *msg) { perror(msg); exit(1); } // Error function used for reporting issues and then exiting out
 
@@ -27,6 +27,8 @@ int main(int argc, char * argv[])
 	int listenSocketFD, establishedConnectionFD, portNumber, charsRead, charsWritten;
 	socklen_t sizeOfClientInfo;
 	char buffer[BUFFERSIZE];
+	char plainText[(BUFFERSIZE/2)];
+	char keyText[(BUFFERSIZE/2)];
 	struct sockaddr_in serverAddress, clientAddress;
 
 	// Check usage & args
@@ -75,14 +77,30 @@ int main(int argc, char * argv[])
 			continue;
 		}
 		
+		memset(plainText, '\0', BUFFERSIZE/2);
+		memset(keyText, '\0', BUFFERSIZE/2);
+		
 		// If here then connected properly to a legit client
 		// client will be sending another message soon, two lines first plaint text second key
 		
-		// HERE
-		// Send a Success message back to the client
-		charsRead = send(establishedConnectionFD, "I am the server, and I got your message", 39, 0); // Send success back
+		// recv message in our larger server-sized buffer 2048 chars
+		memset(buffer, '\0', BUFFERSIZE);
+		charsRead = recv(establishedConnectionFD, buffer, (BUFFERSIZE-1), 0); // Read the client's message from the socket
+		if (charsRead < 0) error("ERROR reading from socket");
+		
+		// get out the plaintext in one buffer
+		//memcpy
+		
+		// get out the key in another buffer
+		
+		// !!! TODO: encrypt(inside child code)
+		
+		// Send back the ciphertext to the client
+		memset(buffer, '\0', BUFFERSIZE);
+		//charsRead = send(); // TODO
 		if (charsRead < 0) error("ERROR writing to socket");
-		close(establishedConnectionFD); // Close the existing socket which is connected to the client
+		// Close the existing socket which is connected to the client
+		close(establishedConnectionFD);
 	}
 
 	//This stuff never gets called actually, always closed with a kill or ctrlC because this is a daemon
