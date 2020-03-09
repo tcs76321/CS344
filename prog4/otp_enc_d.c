@@ -15,6 +15,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+// constant definitions
+#define BUFFERSIZE 1024
+
 void error(const char *msg) { perror(msg); exit(1); } // Error function used for reporting issues and then exiting out
 
 int main(int argc, char * argv[])
@@ -22,7 +25,7 @@ int main(int argc, char * argv[])
 	// Variables
 	int listenSocketFD, establishedConnectionFD, portNumber, charsRead;
 	socklen_t sizeOfClientInfo;
-	char buffer[256];
+	char buffer[BUFFERSIZE];
 	struct sockaddr_in serverAddress, clientAddress;
 
 	// Check usage & args
@@ -51,23 +54,19 @@ int main(int argc, char * argv[])
 	
 	// loop until killed, errored and exited or shutoff somehow else
 	while(1){
-		// Accept a connection, blocking if one is not available until one connects	
+		// Accept a connection, blocking if one is not available until one connects
 		// Do this above instead sizeOfClientInfo = sizeof(clientAddress); // Get the size of the address for the client that will connect
-		establishedConnectionFD = accept(listenSocketFD, (struct sockaddr *)&clientAddress, &sizeOfClientInfo); // Accept
+		establishedConnectionFD = accept(listenSocketFD, (struct sockaddr *)&clientAddress, &sizeOfClientInfo);
 		if (establishedConnectionFD < 0){
 			error("ERROR on accept");
-			continue;
 		}
+		
+		// TODO: fork and do child stuff inside of it 
 	
-		// Will become child code in future with a fork at first and what not
-	
-		//Verify this is otp_enc
-		//
-		//
 
 		// Get the message from the client and display it
-		memset(buffer, '\0', 256);
-		charsRead = recv(establishedConnectionFD, buffer, 255, 0); // Read the client's message from the socket
+		memset(buffer, '\0', BUFFERSIZE);
+		charsRead = recv(establishedConnectionFD, buffer, (BUFFERSIZE-1), 0); // Read the client's message from the socket
 		if (charsRead < 0) error("ERROR reading from socket");
 		printf("SERVER: I received this from the client: \"%s\"\n", buffer);
 
