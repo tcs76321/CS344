@@ -15,18 +15,19 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-void error(const char *msg) { perror(msg); /* dont want this anymore exit(1);*/ } // Error function used for reporting issues
+void error(const char *msg) { perror(msg); exit(1); } // Error function used for reporting issues and then exiting out
 
 int main(int argc, char * argv[])
 {
+	// Variables
 	int listenSocketFD, establishedConnectionFD, portNumber, charsRead;
 	socklen_t sizeOfClientInfo;
 	char buffer[256];
 	struct sockaddr_in serverAddress, clientAddress;
 
-	if (argc < 2) { fprintf(stderr,"USAGE: %s port\n", argv[0]); exit(1); } // Check usage & args
-	//added this line just to make sure it used correctly
-	if (argc > 2) { fprintf(stderr,"USAGE: %s port\n", argv[0]); exit(1); } // Check usage & args
+	// Check usage & args
+	if ((argc < 2) || (argc > 2)) { fprintf(stderr,"USAGE: %s port\n", argv[0]); exit(1); }
+
 
 	// Set up the address struct for this process (the server)
 	memset((char *)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
@@ -37,14 +38,18 @@ int main(int argc, char * argv[])
 
 	// Set up the socket
 	listenSocketFD = socket(AF_INET, SOCK_STREAM, 0); // Create the socket
-	if (listenSocketFD < 0) error("ERROR opening socket");
+	if (listenSocketFD < 0) error("ERROR opening socket"); // check for error
 
-	// Enable the socket to begin listening
+	// Enable the socket to begin listening, with bind()
 	if (bind(listenSocketFD, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) // Connect socket to port
 		error("ERROR on binding");
-	listen(listenSocketFD, 6); // Flip the socket on - it can now receive(in its que) up to 5 connections, 4 waiting
+	listen(listenSocketFD, 6); // Flip the socket on - it can now receive(in its que) up to 6 connections
+	//5 waiting and 1 ABOUT to be connected, this one not accepted() yet
 
-	sizeOfClientInfo = sizeof(clientAddress); // Get the size of the address for the client that will connect
+	// Get the size of the address for the client that will connect
+	sizeOfClientInfo = sizeof(clientAddress);
+	
+	// loop until killed, errored and exited or shutoff somehow else
 	while(1){
 		// Accept a connection, blocking if one is not available until one connects	
 		// Do this above instead sizeOfClientInfo = sizeof(clientAddress); // Get the size of the address for the client that will connect
