@@ -75,7 +75,7 @@ int main(){
 	int index = 0;// for while and for loops, mainly for finding commands and removing children PIDs from our records
 
 
-	while(1){ //TODO loop until proper signal stops us
+	while(1){ // loop until proper signal stops us, still TODO: make ctrl-z and ctrl-c signals do unique things and not exit
 		while(1){ // loop until good input that wasnt corrupted by a signal
 			printPrompt();// also prints out stuff for completed bg commands
 			numCharsEntered = getline(&lineEntered, &bufferSize, stdin); // get command from cmdline

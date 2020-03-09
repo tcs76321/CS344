@@ -1,5 +1,5 @@
 PRE-SCRIPT INFO
-  Grading Script PID: 13868
+  Grading Script PID: 35933
   Note: your smallsh will report a different PID when evaluating $$
 : BEGINNING TEST SCRIPT
 : 
@@ -65,24 +65,96 @@ smallsh.c
 : --------------------
 : pkill -signal SIGTERM sleep (10 points for pid of killed process, 10 points for signal)
 : (Ignore message about Operation Not Permitted)
-: pkill: killing pid 13256 failed: Operation not permitted
-pkill: killing pid 13422 failed: Operation not permitted
-pkill: killing pid 13519 failed: Operation not permitted
-pkill: killing pid 13553 failed: Operation not permitted
-pkill: killing pid 13560 failed: Operation not permitted
-pkill: killing pid 13603 failed: Operation not permitted
-pkill: killing pid 13642 failed: Operation not permitted
-pkill: killing pid 13679 failed: Operation not permitted
-pkill: killing pid 13834 failed: Operation not permitted
-pkill: killing pid 13854 failed: Operation not permitted
-pkill: killing pid 13859 failed: Operation not permitted
-background pid 13921 is done: terminated by signal 15
+: pkill: killing pid 4201 failed: Operation not permitted
+pkill: killing pid 15943 failed: Operation not permitted
+pkill: killing pid 16496 failed: Operation not permitted
+pkill: killing pid 17146 failed: Operation not permitted
+pkill: killing pid 34402 failed: Operation not permitted
+pkill: killing pid 34408 failed: Operation not permitted
+pkill: killing pid 34411 failed: Operation not permitted
+pkill: killing pid 34451 failed: Operation not permitted
+pkill: killing pid 34452 failed: Operation not permitted
+pkill: killing pid 34453 failed: Operation not permitted
+pkill: killing pid 34456 failed: Operation not permitted
+pkill: killing pid 34457 failed: Operation not permitted
+pkill: killing pid 34458 failed: Operation not permitted
+pkill: killing pid 34473 failed: Operation not permitted
+pkill: killing pid 34474 failed: Operation not permitted
+pkill: killing pid 34475 failed: Operation not permitted
+pkill: killing pid 34517 failed: Operation not permitted
+pkill: killing pid 34532 failed: Operation not permitted
+pkill: killing pid 34582 failed: Operation not permitted
+pkill: killing pid 34599 failed: Operation not permitted
+pkill: killing pid 34600 failed: Operation not permitted
+pkill: killing pid 34615 failed: Operation not permitted
+pkill: killing pid 34691 failed: Operation not permitted
+pkill: killing pid 34694 failed: Operation not permitted
+pkill: killing pid 34739 failed: Operation not permitted
+pkill: killing pid 34740 failed: Operation not permitted
+pkill: killing pid 34741 failed: Operation not permitted
+pkill: killing pid 34742 failed: Operation not permitted
+pkill: killing pid 34756 failed: Operation not permitted
+pkill: killing pid 34764 failed: Operation not permitted
+pkill: killing pid 34765 failed: Operation not permitted
+pkill: killing pid 34998 failed: Operation not permitted
+pkill: killing pid 35034 failed: Operation not permitted
+pkill: killing pid 35039 failed: Operation not permitted
+pkill: killing pid 35049 failed: Operation not permitted
+pkill: killing pid 35050 failed: Operation not permitted
+pkill: killing pid 35059 failed: Operation not permitted
+pkill: killing pid 35078 failed: Operation not permitted
+pkill: killing pid 35080 failed: Operation not permitted
+pkill: killing pid 35085 failed: Operation not permitted
+pkill: killing pid 35165 failed: Operation not permitted
+pkill: killing pid 35181 failed: Operation not permitted
+pkill: killing pid 35184 failed: Operation not permitted
+pkill: killing pid 35185 failed: Operation not permitted
+pkill: killing pid 35200 failed: Operation not permitted
+pkill: killing pid 35206 failed: Operation not permitted
+pkill: killing pid 35209 failed: Operation not permitted
+pkill: killing pid 35213 failed: Operation not permitted
+pkill: killing pid 35218 failed: Operation not permitted
+pkill: killing pid 35219 failed: Operation not permitted
+pkill: killing pid 35220 failed: Operation not permitted
+pkill: killing pid 35223 failed: Operation not permitted
+pkill: killing pid 35249 failed: Operation not permitted
+pkill: killing pid 35250 failed: Operation not permitted
+pkill: killing pid 35251 failed: Operation not permitted
+pkill: killing pid 35253 failed: Operation not permitted
+pkill: killing pid 35264 failed: Operation not permitted
+pkill: killing pid 35269 failed: Operation not permitted
+pkill: killing pid 35323 failed: Operation not permitted
+pkill: killing pid 35327 failed: Operation not permitted
+pkill: killing pid 35347 failed: Operation not permitted
+pkill: killing pid 35364 failed: Operation not permitted
+pkill: killing pid 35371 failed: Operation not permitted
+pkill: killing pid 35378 failed: Operation not permitted
+pkill: killing pid 35415 failed: Operation not permitted
+pkill: killing pid 35470 failed: Operation not permitted
+pkill: killing pid 35471 failed: Operation not permitted
+pkill: killing pid 35475 failed: Operation not permitted
+pkill: killing pid 35499 failed: Operation not permitted
+pkill: killing pid 35649 failed: Operation not permitted
+pkill: killing pid 35704 failed: Operation not permitted
+pkill: killing pid 35804 failed: Operation not permitted
+pkill: killing pid 35818 failed: Operation not permitted
+pkill: killing pid 35819 failed: Operation not permitted
+pkill: killing pid 35833 failed: Operation not permitted
+pkill: killing pid 35862 failed: Operation not permitted
+pkill: killing pid 35863 failed: Operation not permitted
+pkill: killing pid 35864 failed: Operation not permitted
+pkill: killing pid 35865 failed: Operation not permitted
+pkill: killing pid 35867 failed: Operation not permitted
+pkill: killing pid 35905 failed: Operation not permitted
+pkill: killing pid 38846 failed: Operation not permitted
+pkill: killing pid 39847 failed: Operation not permitted
+background pid 35985 is done: terminated by signal 15
 : 
 : 
 : --------------------
 : sleep 1 background (10 pts for pid of bg ps when done, 10 for exit value)
-: : background pid 13933 is done: exit value 0
-: 
+: : : 
+background pid 36018 is done: exit value 0
 : 
 : --------------------
 : pwd
@@ -112,8 +184,8 @@ background pid 13921 is done: terminated by signal 15
 : /nfs/stak/users/stahltr/testdir$$
 : --------------------
 : : kill: cannot find process "$$"
-background pid 13967 is done: exit value 0
-: Sat Feb 22 21:21:00 PST 2020
-: : Sat Feb 22 21:21:00 PST 2020
+background pid 36055 is done: exit value 0
+: Sun Feb 23 14:20:05 PST 2020
+: : Sun Feb 23 14:20:05 PST 2020
 : kill: cannot find process "$$"
 : 
