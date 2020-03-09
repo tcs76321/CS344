@@ -42,7 +42,7 @@ int main(int argc, char * argv[])
 	// Enable the socket to begin listening
 	if (bind(listenSocketFD, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) // Connect socket to port
 		error("ERROR on binding");
-	listen(listenSocketFD, 5); // Flip the socket on - it can now receive(in its que) up to 5 connections, 4 waiting
+	listen(listenSocketFD, 6); // Flip the socket on - it can now receive(in its que) up to 5 connections, 4 waiting
 
 	sizeOfClientInfo = sizeof(clientAddress); // Get the size of the address for the client that will connect
 	while(1){
