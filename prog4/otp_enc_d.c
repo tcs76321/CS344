@@ -1,11 +1,12 @@
-// TRevor Stahl
+// Trevor Stahl
 // stahltr
-// cs 344 400 f2019
+// cs 344 400 W2020
 //
 // server/daemon
 //
 // Citations: 
-// the provided code that we dont have to cite and TA advice and class code snippets and chunks nothing else so far except for man pages for info
+// the provided code that we dont have to cite and TA advice and class code snippets and
+// internet-found man pages for reference and double checking things
 
 #include <stdio.h>
 #include <stdlib.h>
