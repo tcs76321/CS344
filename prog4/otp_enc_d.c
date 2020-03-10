@@ -74,13 +74,17 @@ int main(int argc, char * argv[])
 		if(strcmp(buffer, validateMessage) != 0){// this means first message was not valid and client is not valid
 			// !!! TODO send back rejection message
 			close(establishedConnectionFD); // Close the existing socket which is connected to the client
-			continue;
+			continue; // closed and ready to continue new loop accepting a new connection from the queue
 		}
 		
-		// TODO otherwise send confirmation if they match
+		// otherwise, if here, send confirmation if they match
+		char confirmationMessage[] = "confirmed";
+		// Write to the server
+		charsWritten = send(establishedConnectionFD, confirmationMessage, strlen(confirmationMessage), 0); 
+		if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
 		
 		// If here then connected properly to a legit client
-		// client will be sending another message, two lines first plaintext second key
+		// client will be sending another message soon, will be two 'lines' first plaintext second key
 		memset(buffer, '\0', BUFFERSIZE);
 		memset(plainText, '\0', BUFFERSIZE/2);
 		memset(keyText, '\0', BUFFERSIZE/2);
