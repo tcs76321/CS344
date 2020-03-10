@@ -25,36 +25,14 @@ int main(int argc, char *argv[])
 	int socketFD, portNumber, charsWritten, charsRead;
 	struct sockaddr_in serverAddress;
 	struct hostent* serverHostInfo;
-	char buffer[1024];
-	char helperbuffer[520];
+	char buffer[141000];// I hate dynamic memory, 
+	char helperbuffer[70100];//if I get this way working and submitted will use time left to try to implement dynamic memory instead
 	ssize_t nread;
 	char newLineChar[]= "\n";
+	int file_descriptor;
     
 	if (argc < 4) { fprintf(stderr,"USAGE: %s plaintext key port\n", argv[0]); exit(0); } // Check usage & args
-
-	// Set up the server address struct
-	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
-	portNumber = atoi(argv[3]); // Get the port number, convert to an integer from a string
-	serverAddress.sin_family = AF_INET; // Create a network-capable socket
-	serverAddress.sin_port = htons(portNumber); // Store the port number
-	serverHostInfo = gethostbyname("localhost"); // Convert the machine name into a special form of address
-	if (serverHostInfo == NULL) { fprintf(stderr, "CLIENT: ERROR, no such host\n"); exit(0); }
-	memcpy((char*)&serverAddress.sin_addr.s_addr, (char*)serverHostInfo->h_addr, serverHostInfo->h_length); // Copy in the address
-
-	// Set up the socket
-	socketFD = socket(AF_INET, SOCK_STREAM, 0); // Create the socket
-	if (socketFD < 0) error("CLIENT: ERROR opening socket");
 	
-	// Connect to server
-	if (connect(socketFD, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) // Connect socket to address
-		error("CLIENT: ERROR connecting");
-	
-	// send something to let daemon's child process know this is a legit client
-	char validateMessage[] = "ThisIsATrevor_ENC_client";
-	charsWritten = send(socketFD, validateMessage, strlen(validateMessage), 0); // Write to the server
-	if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
-	if (charsWritten < strlen(buffer)) error("CLIENT: WARNING: Not all data written to socket!\n");
-
 	// plaintext into buffer
 	// make sure buffer is ready
 	memset(buffer, '\0', sizeof(buffer)); // Clear out the buffer array
@@ -82,6 +60,36 @@ int main(int argc, char *argv[])
 
 	// close file_descriptor last time
 	close(file_descriptor);
+	
+	// TODO: !!! check for only good chars in key and plain text
+		// if so it should 'terminate, send appropriate error text to stderr, and set the exit value to 1.' 
+
+	// Set up the server address struct
+	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
+	portNumber = atoi(argv[3]); // Get the port number, convert to an integer from a string
+	serverAddress.sin_family = AF_INET; // Create a network-capable socket
+	serverAddress.sin_port = htons(portNumber); // Store the port number
+	serverHostInfo = gethostbyname("localhost"); // Convert the machine name into a special form of address
+	if (serverHostInfo == NULL) { fprintf(stderr, "CLIENT: ERROR, no such host\n"); exit(0); }
+	memcpy((char*)&serverAddress.sin_addr.s_addr, (char*)serverHostInfo->h_addr, serverHostInfo->h_length); // Copy in the address
+
+	// Set up the socket
+	socketFD = socket(AF_INET, SOCK_STREAM, 0); // Create the socket
+	if (socketFD < 0) error("CLIENT: ERROR opening socket");
+	
+	// Connect to server
+	if (connect(socketFD, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) // Connect socket to address
+		error("CLIENT: ERROR connecting");
+	
+	// send something to let daemon's child process know this is a legit client
+	char validateMessage[] = "ThisIsATrevor_ENC_client";
+	charsWritten = send(socketFD, validateMessage, strlen(validateMessage), 0); // Write to the server
+	if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
+	if (charsWritten < strlen(buffer)) error("CLIENT: WARNING: Not all data written to socket!\n");
+
+	// TODO: recv back confirmation or denial
+		// if denied "should report the rejection to stderr and then terminate itself"
+	
 	
 	// Send actual data to daemon
 	charsWritten = send(socketFD, buffer, strlen(buffer), 0); // Write to the server
