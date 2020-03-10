@@ -81,7 +81,6 @@ int main(int argc, char * argv[])
 		
 		// If here then connected properly to a legit client
 		// client will be sending another message, two lines first plaintext second key
-		// recv message in our larger server-sized buffer 2048 chars
 		memset(buffer, '\0', BUFFERSIZE);
 		memset(plainText, '\0', BUFFERSIZE/2);
 		memset(keyText, '\0', BUFFERSIZE/2);
@@ -90,7 +89,7 @@ int main(int argc, char * argv[])
 			memset(readBuffer, '\0', sizeof(readBuffer));
 			// Read the client's message from the socket
 			charsRead = recv(establishedConnectionFD, readBuffer, (sizeof(readBuffer)-1), 0); 
-			strcat(buffer, readBuffer);// add readBuffer onto the main buffer
+			strcat(buffer, readBuffer);// concatenate readBuffer onto the main buffer
 			if (charsRead < 0) error("ERROR reading from socket less than 0");// still need to error and exit here I think
 			if (charsRead == 0){ printf("charsRead == 0\n"); break; }// example had this
 		}
