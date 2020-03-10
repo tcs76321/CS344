@@ -20,6 +20,39 @@
 
 void error(const char *msg) { perror(msg); exit(1); } // Error function used for reporting issues
 
+int checkForBadChars(char meChar){
+	// return of 9 means char is good, else returns 1 which means char is Bad
+	if(meChar == ' '){ return 9; }// check space
+	elseif(meChar == 'A'){ return 9; }
+	elseif(meChar == 'B'){ return 9; }
+	elseif(meChar == 'C'){ return 9; }
+	elseif(meChar == 'D'){ return 9; }
+	elseif(meChar == 'E'){ return 9; }
+	elseif(meChar == 'F'){ return 9; }
+	elseif(meChar == 'G'){ return 9; }
+	elseif(meChar == 'H'){ return 9; }
+	elseif(meChar == 'I'){ return 9; }
+	elseif(meChar == 'J'){ return 9; }
+	elseif(meChar == 'K'){ return 9; }
+	elseif(meChar == 'L'){ return 9; }
+	elseif(meChar == 'M'){ return 9; }
+	elseif(meChar == 'N'){ return 9; }
+	elseif(meChar == 'O'){ return 9; }
+	elseif(meChar == 'P'){ return 9; }
+	elseif(meChar == 'Q'){ return 9; }
+	elseif(meChar == 'R'){ return 9; }
+	elseif(meChar == 'S'){ return 9; }
+	elseif(meChar == 'T'){ return 9; }
+	elseif(meChar == 'U'){ return 9; }
+	elseif(meChar == 'V'){ return 9; }
+	elseif(meChar == 'W'){ return 9; }
+	elseif(meChar == 'X'){ return 9; }
+	elseif(meChar == 'Y'){ return 9; }
+	elseif(meChar == 'Z'){ return 9; }
+	elseif(meChar == '\n'){ return 9; }// Not a char that will be encrypted but ends every plaintext and key
+	else{ return 1; }
+}
+
 int main(int argc, char *argv[])
 {
 	int socketFD, portNumber, charsWritten, charsRead;
@@ -62,9 +95,12 @@ int main(int argc, char *argv[])
 	// close file_descriptor last time
 	close(file_descriptor);
 	
-	// TODO: !!! check for only good chars in key and plain text
-		// if so it should 'terminate, send appropriate error text to stderr, and set the exit value to 1.' 
-		// just use error()
+	// check for only good chars in key and plain text
+	for( i=0 ; i < strlen(buffer) ; i++ ){
+		// if so it should: "terminate, send appropriate error text to stderr, and set the exit value to 1."
+		if((checkForBadChars(buffer[i])) != 9) { error("Bad char in key OR plaintext"); }// just use error()
+	}
+	// if we get here all chars are good
 
 	// Set up the server address struct
 	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
@@ -95,7 +131,7 @@ int main(int argc, char *argv[])
 	charsRead = recv(socketFD, helperbuffer, (sizeof(helperbuffer)-1), 0);
 	if (charsRead < 0) error("ERROR reading from socket");
 	char confirmationMessage[] = "confirmed";
-	if(strcmp(buffer, validateMessage) != 0){
+	if(strcmp(buffer, confirmationMessage) != 0){
 		// if denied "should report the rejection to stderr and then terminate itself"
 		close(socketFD); // Close the existing socket which is connected to the client
 		error("server-side denied validation");// error exits with value of 1
@@ -112,7 +148,7 @@ int main(int argc, char *argv[])
 	if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
 	if (charsWritten < strlen(buffer)) error("CLIENT: WARNING: Not all data written to socket!\n");
 
-	// Get ciphertext from daemon child process
+	// Get back ciphertext from daemon child process
 	memset(buffer, '\0', sizeof(buffer)); // Clear out the buffer again for reuse
 	// recvs only the ciphertext back with one newline at end as it should be
 	// loop for plaintext4 shananigans
