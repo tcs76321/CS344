@@ -18,7 +18,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-void error(const char *msg) { perror(msg); exit(0); } // Error function used for reporting issues
+void error(const char *msg) { perror(msg); exit(1); } // Error function used for reporting issues
 
 int main(int argc, char *argv[])
 {
@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 	ssize_t nread;
 	char newLineChar[]= "\n";
 	int file_descriptor;
+	char readBuffer[1024];
     
 	if (argc < 4) { fprintf(stderr,"USAGE: %s plaintext key port\n", argv[0]); exit(0); } // Check usage & args
 	
@@ -63,6 +64,7 @@ int main(int argc, char *argv[])
 	
 	// TODO: !!! check for only good chars in key and plain text
 		// if so it should 'terminate, send appropriate error text to stderr, and set the exit value to 1.' 
+		// just use error()
 
 	// Set up the server address struct
 	memset((char*)&serverAddress, '\0', sizeof(serverAddress)); // Clear out the address struct
@@ -87,11 +89,24 @@ int main(int argc, char *argv[])
 	if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
 	if (charsWritten < strlen(buffer)) error("CLIENT: WARNING: Not all data written to socket!\n");
 
-	// TODO: recv back confirmation or denial
+	// recv back confirmation or denial
+	memset(helperbuffer, '\0', sizeof(helperbuffer));
+	// No loop here validation messages are much smaller than max packet size
+	// Read the client's message from the socket
+	charsRead = recv(establishedConnectionFD, helperbuffer, (sizeof(helperbuffer)-1), 0);
+	if (charsRead < 0) error("ERROR reading from socket");
+	char confirmationMessage[] = "confirmed";
+	if(strcmp(buffer, validateMessage) != 0){
 		// if denied "should report the rejection to stderr and then terminate itself"
+		close(establishedConnectionFD); // Close the existing socket which is connected to the client
+		error("server-side denied validation");// error exits with value of 1
+	}
 	
-	
-	// TODO: append terminating bad chars
+	// append terminating bad chars to buffer
+	char terminal[] = "@@";
+	strcat(buffer, terminal);
+	// everything else already in buffer from above before bad char check
+	// ready to send below now
 	
 	// Send actual data to daemon
 	charsWritten = send(socketFD, buffer, strlen(buffer), 0); // Write to the server
@@ -101,12 +116,22 @@ int main(int argc, char *argv[])
 	// Get ciphertext from daemon child process
 	memset(buffer, '\0', sizeof(buffer)); // Clear out the buffer again for reuse
 	// recvs only the ciphertext back with one newline at end as it should be
-	charsRead = recv(socketFD, buffer, sizeof(buffer) - 1, 0); // Read data from the socket, leaving \0 at end
-	if (charsRead < 0) error("CLIENT: ERROR reading from socket");
+	// loop for plaintext4 shananigans
+	while(strstr(buffer, "@@") ==  NULL){
+		memset(readBuffer, '\0', sizeof(readBuffer));
+		// Read the client's message from the socket
+		charsRead = recv(establishedConnectionFD, readBuffer, (sizeof(readBuffer)-1), 0); 
+		strcat(buffer, readBuffer);// concatenate readBuffer onto the main buffer
+		if (charsRead < 0) error("ERROR reading from socket less than 0");// still need to error and exit here I think
+		if (charsRead == 0){ printf("charsRead == 0\n"); break; }// example had this
+	}
+	
+	// send result to stdout
 	printf("%s", buffer);
 
 	// Close the socket
 	close(socketFD);
+	
 	// return 0 for good completion
 	return 0;
 }
