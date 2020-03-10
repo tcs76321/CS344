@@ -17,7 +17,7 @@
 #include <netinet/in.h>
 
 // constant definitions
-#define BUFFERSIZE 3000
+#define BUFFERSIZE 141000
 
 void error(const char *msg) { perror(msg); exit(1); } // Error function used for reporting issues and then exiting out
 
@@ -29,6 +29,7 @@ int main(int argc, char * argv[])
 	char buffer[BUFFERSIZE];
 	char plainText[(BUFFERSIZE/2)];
 	char keyText[(BUFFERSIZE/2)];
+	char readBuffer[1024];
 	struct sockaddr_in serverAddress, clientAddress;
 
 	// Check usage & args
@@ -49,7 +50,7 @@ int main(int argc, char * argv[])
 	// Enable the socket to begin listening, with bind()
 	if (bind(listenSocketFD, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) // Connect socket to port
 		error("ERROR on binding");
-	listen(listenSocketFD, 6); // Flip the socket on - it can now receive(in its que) up to 6 connections
+	listen(listenSocketFD, 6); // Flip the socket on - it can now receive(in its que) up to 6 connections, 6 for some extra breathing room
 	//5 waiting and 1 ABOUT to be connected, this one not accepted() yet
 
 	// Get the size of the address for the client that will connect
@@ -57,47 +58,60 @@ int main(int argc, char * argv[])
 	
 	// loop until killed, errored and exited or shutoff somehow else
 	while(1){
-		// Accept a connection, blocking if one is not available until one connects
-		// Do this above instead sizeOfClientInfo = sizeof(clientAddress); // Get the size of the address for the client that will connect
+		// Accept a connection, blocking if one is not waiting, blocking until one connects
 		establishedConnectionFD = accept(listenSocketFD, (struct sockaddr *)&clientAddress, &sizeOfClientInfo);
-		if (establishedConnectionFD < 0){
-			error("ERROR on accept");
-		}
+		if (establishedConnectionFD < 0) error("ERROR on accept");
 		
 		// TODO: fork and do child stuff inside of it instead of just below
 
 		// Get the FIRST message from the client and check for legitimization
 		memset(buffer, '\0', BUFFERSIZE);
+		// No loop here validation messages are much smaller than packet size
 		charsRead = recv(establishedConnectionFD, buffer, (BUFFERSIZE-1), 0); // Read the client's message from the socket
 		if (charsRead < 0) error("ERROR reading from socket");
 		// declare our validation message identically to how client will do so
 		char validateMessage[] = "ThisIsATrevor_ENC_client";
 		if(strcmp(buffer, validateMessage) != 0){// this means first message was not valid and client is not valid
+			// !!! TODO send back rejection message
 			close(establishedConnectionFD); // Close the existing socket which is connected to the client
 			continue;
 		}
 		
+		// TODO otherwise send confirmation if they match
+		
+		// If here then connected properly to a legit client
+		// client will be sending another message, two lines first plaintext second key
+		// recv message in our larger server-sized buffer 2048 chars
+		memset(buffer, '\0', BUFFERSIZE);
 		memset(plainText, '\0', BUFFERSIZE/2);
 		memset(keyText, '\0', BUFFERSIZE/2);
 		
-		// If here then connected properly to a legit client
-		// client will be sending another message soon, two lines first plaint text second key
+		while(strstr(buffer, "@@") ==  NULL){
+			memset(readBuffer, '\0', sizeof(readBuffer));
+			// Read the client's message from the socket
+			charsRead = recv(establishedConnectionFD, readBuffer, (sizeof(readBuffer)-1), 0); 
+			strcat(buffer, readBuffer);// add readBuffer onto the main buffer
+			if (charsRead < 0) error("ERROR reading from socket less than 0");// still need to error and exit here I think
+			if (charsRead == 0){ printf("charsRead == 0\n"); break; }// example had this
+		}
 		
-		// recv message in our larger server-sized buffer 2048 chars
-		memset(buffer, '\0', BUFFERSIZE);
-		charsRead = recv(establishedConnectionFD, buffer, (BUFFERSIZE-1), 0); // Read the client's message from the socket
-		if (charsRead < 0) error("ERROR reading from socket");
+		// remove bad terminating chars
+		int terminalLocation = strstr(buffer, "@@") - buffer; // Where is the terminal
+		buffer[terminalLocation] = '\0'; // End the string early to wipe out the terminal
 		
-		// get out the plaintext in one buffer
+		// TODO get out the plaintext in one buffer
 		//memcpy
 		
-		// get out the key in another buffer
+		// TODO get out the key in another buffer
 		
 		// !!! TODO: encrypt(inside child code)
+		// Where to store it as generated???
 		
 		// Send back the ciphertext to the client
-		memset(buffer, '\0', BUFFERSIZE);
-		//charsRead = send(); // TODO
+		memset(buffer, '\0', BUFFERSIZE);// maybe dont use buffer use one of the smaller ones
+		
+		//TODO charsRead = send();
+		
 		if (charsRead < 0) error("ERROR writing to socket");
 		// Close the existing socket which is connected to the client
 		close(establishedConnectionFD);
