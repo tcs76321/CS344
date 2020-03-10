@@ -91,6 +91,8 @@ int main(int argc, char *argv[])
 		// if denied "should report the rejection to stderr and then terminate itself"
 	
 	
+	// TODO: append terminating bad chars
+	
 	// Send actual data to daemon
 	charsWritten = send(socketFD, buffer, strlen(buffer), 0); // Write to the server
 	if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
