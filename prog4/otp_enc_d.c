@@ -50,7 +50,9 @@ int main(int argc, char * argv[])
 	// Enable the socket to begin listening, with bind()
 	if (bind(listenSocketFD, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) // Connect socket to port
 		error("ERROR on binding");
-	listen(listenSocketFD, 6); // Flip the socket on - it can now receive(in its que) up to 6 connections, 6 for some extra breathing room
+	
+	// Flip the socket on - it can now receive(in its que) up to 6 connections,
+	listen(listenSocketFD, 6); // 6 for some extra breathing room
 	//5 waiting and 1 ABOUT to be connected, this one not accepted() yet
 
 	// Get the size of the address for the client that will connect
@@ -69,11 +71,15 @@ int main(int argc, char * argv[])
 		// No loop here validation messages are much smaller than packet size
 		charsRead = recv(establishedConnectionFD, buffer, (BUFFERSIZE-1), 0); // Read the client's message from the socket
 		if (charsRead < 0) error("ERROR reading from socket");
-		// declare our validation message identically to how client will do so
+		// declare our validation and denial messages identically to how client will do so
 		char validateMessage[] = "ThisIsATrevor_ENC_client";
+		char deniedMessage[] = "denied";
 		if(strcmp(buffer, validateMessage) != 0){// this means first message was not valid and client is not valid
-			// !!! TODO send back rejection message
-			close(establishedConnectionFD); // Close the existing socket which is connected to the client
+			// send back rejection message
+			charsWritten = send(establishedConnectionFD, deniedMessage, strlen(deniedMessage), 0); 
+			if (charsWritten < 0) error("SERVER: ERROR writing to socket");
+			// Close the existing socket which is connected to the client
+			close(establishedConnectionFD);
 			continue; // closed and ready to continue new loop accepting a new connection from the queue
 		}
 		
@@ -81,7 +87,7 @@ int main(int argc, char * argv[])
 		char confirmationMessage[] = "confirmed";
 		// Write to the server
 		charsWritten = send(establishedConnectionFD, confirmationMessage, strlen(confirmationMessage), 0); 
-		if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
+		if (charsWritten < 0) error("SERVER: ERROR writing to socket");
 		
 		// If here then connected properly to a legit client
 		// client will be sending another message soon, will be two 'lines' first plaintext second key
@@ -103,12 +109,14 @@ int main(int argc, char * argv[])
 		buffer[terminalLocation] = '\0'; // End the string early to wipe out the terminal
 		
 		// TODO get out the plaintext in one buffer
-		//memcpy
+		//memcpy?
 		
 		// TODO get out the key in another buffer
 		
 		// !!! TODO: encrypt(inside child code)
 		// Where to store it as generated???
+		
+		
 		// Use @@ to terminate here as well
 		
 		// Send back the ciphertext to the client
