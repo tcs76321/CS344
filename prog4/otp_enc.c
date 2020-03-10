@@ -92,12 +92,12 @@ int main(int argc, char *argv[])
 	memset(helperbuffer, '\0', sizeof(helperbuffer));
 	// No loop here validation messages are much smaller than max packet size
 	// Read the client's message from the socket
-	charsRead = recv(establishedConnectionFD, helperbuffer, (sizeof(helperbuffer)-1), 0);
+	charsRead = recv(socketFD, helperbuffer, (sizeof(helperbuffer)-1), 0);
 	if (charsRead < 0) error("ERROR reading from socket");
 	char confirmationMessage[] = "confirmed";
 	if(strcmp(buffer, validateMessage) != 0){
 		// if denied "should report the rejection to stderr and then terminate itself"
-		close(establishedConnectionFD); // Close the existing socket which is connected to the client
+		close(socketFD); // Close the existing socket which is connected to the client
 		error("server-side denied validation");// error exits with value of 1
 	}
 	
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 	while(strstr(buffer, "@@") ==  NULL){
 		memset(readBuffer, '\0', sizeof(readBuffer));
 		// Read the client's message from the socket
-		charsRead = recv(establishedConnectionFD, readBuffer, (sizeof(readBuffer)-1), 0); 
+		charsRead = recv(socketFD, readBuffer, (sizeof(readBuffer)-1), 0); 
 		strcat(buffer, readBuffer);// concatenate readBuffer onto the main buffer
 		if (charsRead < 0) error("ERROR reading from socket less than 0");// still need to error and exit here I think
 		if (charsRead == 0){ printf("charsRead == 0\n"); break; }// example had this
