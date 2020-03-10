@@ -23,32 +23,19 @@ void error(const char *msg) { perror(msg); exit(1); } // Error function used for
 int checkForBadChars(char meChar){
 	// return of 9 means char is good, else returns 1 which means char is Bad
 	if(meChar == ' '){ return 9; }// check space
-	elseif(meChar == 'A'){ return 9; }
-	elseif(meChar == 'B'){ return 9; }
-	elseif(meChar == 'C'){ return 9; }
-	elseif(meChar == 'D'){ return 9; }
-	elseif(meChar == 'E'){ return 9; }
-	elseif(meChar == 'F'){ return 9; }
-	elseif(meChar == 'G'){ return 9; }
-	elseif(meChar == 'H'){ return 9; }
-	elseif(meChar == 'I'){ return 9; }
-	elseif(meChar == 'J'){ return 9; }
-	elseif(meChar == 'K'){ return 9; }
-	elseif(meChar == 'L'){ return 9; }
-	elseif(meChar == 'M'){ return 9; }
-	elseif(meChar == 'N'){ return 9; }
-	elseif(meChar == 'O'){ return 9; }
-	elseif(meChar == 'P'){ return 9; }
-	elseif(meChar == 'Q'){ return 9; }
-	elseif(meChar == 'R'){ return 9; }
-	elseif(meChar == 'S'){ return 9; }
-	elseif(meChar == 'T'){ return 9; }
-	elseif(meChar == 'U'){ return 9; }
-	elseif(meChar == 'V'){ return 9; }
-	elseif(meChar == 'W'){ return 9; }
-	elseif(meChar == 'X'){ return 9; }
-	elseif(meChar == 'Y'){ return 9; }
-	elseif(meChar == 'Z'){ return 9; }
+	elseif(meChar == 'A'){ return 9; }elseif(meChar == 'B'){ return 9; }
+	elseif(meChar == 'C'){ return 9; }elseif(meChar == 'D'){ return 9; }
+	elseif(meChar == 'E'){ return 9; }elseif(meChar == 'F'){ return 9; }
+	elseif(meChar == 'G'){ return 9; }elseif(meChar == 'H'){ return 9; }
+	elseif(meChar == 'I'){ return 9; }elseif(meChar == 'J'){ return 9; }
+	elseif(meChar == 'K'){ return 9; }elseif(meChar == 'L'){ return 9; }
+	elseif(meChar == 'M'){ return 9; }elseif(meChar == 'N'){ return 9; }
+	elseif(meChar == 'O'){ return 9; }elseif(meChar == 'P'){ return 9; }
+	elseif(meChar == 'Q'){ return 9; }elseif(meChar == 'R'){ return 9; }
+	elseif(meChar == 'S'){ return 9; }elseif(meChar == 'T'){ return 9; }
+	elseif(meChar == 'U'){ return 9; }elseif(meChar == 'V'){ return 9; }
+	elseif(meChar == 'W'){ return 9; }elseif(meChar == 'X'){ return 9; }
+	elseif(meChar == 'Y'){ return 9; }elseif(meChar == 'Z'){ return 9; }
 	elseif(meChar == '\n'){ return 9; }// Not a char that will be encrypted but ends every plaintext and key
 	else{ return 1; }
 }
