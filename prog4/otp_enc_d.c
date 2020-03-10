@@ -105,6 +105,7 @@ int main(int argc, char * argv[])
 		
 		// !!! TODO: encrypt(inside child code)
 		// Where to store it as generated???
+		// Use @@ to terminate here as well
 		
 		// Send back the ciphertext to the client
 		memset(buffer, '\0', BUFFERSIZE);// maybe dont use buffer use one of the smaller ones
