@@ -87,7 +87,6 @@ int main(int argc, char *argv[])
 	char validateMessage[] = "ThisIsATrevor_ENC_client";
 	charsWritten = send(socketFD, validateMessage, strlen(validateMessage), 0); // Write to the server
 	if (charsWritten < 0) error("CLIENT: ERROR writing to socket");
-	if (charsWritten < strlen(buffer)) error("CLIENT: WARNING: Not all data written to socket!\n");
 
 	// recv back confirmation or denial
 	memset(helperbuffer, '\0', sizeof(helperbuffer));
