@@ -124,7 +124,7 @@ int main(int argc, char * argv[])
 		char charHolderK;
 		int intHolderP;
 		int intHolderK;
-		
+		int singleHolder;
 		int k = iii + 1; // first index of key chars,
 		// loop through all of plaintext chars
 		for( int p = 0 ; p<iii ; p++ ){//
@@ -149,8 +149,16 @@ int main(int argc, char * argv[])
 			// if client side bad char checks worked:
 			// intHolders will only be good to go now
 			// ENCRYPT which is addition
-			buffer[p] = (char)(((intHolderP + intHolderK) % 27));
-			// put into buffer to there at same time
+			singleHolder = (((intHolderP + intHolderK) % 27));
+			if(singleHolder == 26){
+				singleHolder = 32;
+			}
+			if(singleHolder != 32){
+				singleHolder = singleHolder + 65;
+			}
+
+			// put into buffer
+			buffer[p] = (char)(singleHolder);
 			
 			// increment k, j is incremented by for loop as shown above
 			k = k + 1;
