@@ -95,6 +95,7 @@ int main(int argc, char * argv[])
 		memset(plainText, '\0', BUFFERSIZE/2);
 		memset(keyText, '\0', BUFFERSIZE/2);
 		
+		// loop for multi packet sized sends from other side
 		while(strstr(buffer, "@@") ==  NULL){
 			memset(readBuffer, '\0', sizeof(readBuffer));
 			// Read the client's message from the socket
@@ -107,31 +108,81 @@ int main(int argc, char * argv[])
 		// remove bad terminating chars
 		int terminalLocation = strstr(buffer, "@@") - buffer; // Where is the terminal
 		buffer[terminalLocation] = '\0'; // End the string early to wipe out the terminal
-		
-		// TODO get out the plaintext in one buffer
-		//memcpy?
-		
-		// TODO get out the key in another buffer
-		
-		// !!! TODO: encrypt(inside child code)
-		// Where to store it as generated???
+		// should still have a newline right before null term there
 		
 		
-		// Use @@ to terminate here as well
+		// there should be a newline char inbetween text and key
+		// iii will become length of plaintext and min length of key because client made sure of that stuff
+		int iii = 0;
+		while( buffer[iii] != '\n' ){ // if buffer[iii] == newline it does not reloop
+			iii = iii + 1;
+			// iii might now be such that buffer[iii] is newline
+		}
+	
+		// variables for encryption
+		char charHolderP;
+		char charHolderK;
+		int intHolderP;
+		int intHolderK;
+		
+		int k = iii + 1; // first index of key chars,
+		// loop through all of plaintext chars
+		for( int p = 0 ; p<iii ; p++ ){//
+			charHolderP = buffer[p];
+			charHolderK = buffer[k];
+			intHolderP = (int)(charHolderP);
+			intHolderK = (int)(charHolderK);
+			// handle spaces
+			if(intHolderP == 32){
+				intHolderP = 26; // 26 will be my value space
+			}else{//otherwise was a capital letter so subtract to get value
+				// if char was A(65) then minus 65 to get A to be 0
+				intHolderP = intHolderP - 65;
+			}
+			//same for key
+			if(intHolderK == 32){
+				intHolderK = 26; // 26 will be my value space
+			}else{//otherwise was a capital letter so subtract to get value
+				// if char was A then minus 65 to get A to be 0
+				intHolderK = intHolderK - 65;
+			} 
+			// if client side bad char checks worked:
+			// intHolders will only be good to go now
+			// ENCRYPT which is addition
+			buffer[p] = (char)(((intHolderP + intHolderK) % 27));
+			// put into buffer to there at same time
+			
+			// increment k, j is incremented by for loop as shown above
+			k = k + 1;
+		}
+		
+		
+		// now buffer at 0 to < iii is cipher text
+		// first replace buffer[iii], and a few behind it, which is newline dividing text from key
+		// with a null term such that the follwing works and sending does not send key stuff left over in buffer
+		buffer[iii] = '\0';
+		buffer[iii+1] = '\0';
+		buffer[iii+2] = '\0';
+		buffer[iii+3] = '\0';
+		buffer[iii+4] = '\0';// the extra stuff here is just to avoid hard to find errors, playing it safe basically
+		
+		// Use @@ to terminate for loop recv'ing on other side
+		char terminal[] = "@@";
+		strcat(buffer, terminal);
 		
 		// Send back the ciphertext to the client
-		memset(buffer, '\0', BUFFERSIZE);// maybe dont use buffer use one of the smaller ones
+		charsWritten = send(establishedConnectionFD, buffer, strlen(buffer), 0); 
 		
-		//TODO charsRead = send();
+		//error check
+		if (charsWritten < 0) error("ERROR writing to socket");
 		
-		if (charsRead < 0) error("ERROR writing to socket");
 		// Close the existing socket which is connected to the client
 		close(establishedConnectionFD);
 	}
 
 	//This stuff never gets called actually, always closed with a kill or ctrlC because this is a daemon
 	close(listenSocketFD); // Close the listening socket
-	return 0; 
+	return 0; // just for compiling and good habits
 }
 
 // constant definitions
