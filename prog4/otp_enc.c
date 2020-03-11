@@ -157,6 +157,11 @@ int main(int argc, char *argv[])
 		if (charsRead == 0){ printf("charsRead == 0\n"); break; }// example had this
 	}
 	
+	//get rid of term chars
+	int terminalLocation = strstr(buffer, "@@") - buffer; // Where is the terminal
+	buffer[terminalLocation] = '\0'; // End the string early to wipe out the terminal
+	buffer[terminalLocation+1] = '\0';// just because I am paranoid
+	
 	// send result to stdout
 	printf("%s", buffer);
 
