@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 	buffer[terminalLocation+1] = '\0';// just because I am paranoid
 	
 	// send result to stdout
-	printf("%s", buffer);
+	printf("%s\n", buffer);
 
 	// Close the socket
 	close(socketFD);
