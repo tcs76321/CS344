@@ -125,11 +125,12 @@ int main(int argc, char *argv[])
 	charsRead = recv(socketFD, helperbuffer, (sizeof(helperbuffer)-1), 0);
 	if (charsRead < 0) error("ERROR reading from socket");
 	char confirmationMessage[] = "confirmed";
-	if(strcmp(buffer, confirmationMessage) != 0){
+	if(strcmp(helperbuffer, confirmationMessage) != 0){
 		// if denied "should report the rejection to stderr and then terminate itself"
 		close(socketFD); // Close the existing socket which is connected to the client
 		error("server-side denied validation");// error exits with value of 1
 	}
+	
 	
 	// append terminating bad chars to buffer
 	char terminal[] = "@@";
