@@ -76,11 +76,18 @@ int main(int argc, char *argv[])
 	// put into helperbuffer the key text which has a newline at its end
 	nread = read(file_descriptor, helperbuffer, sizeof(helperbuffer));
 	
+	int plainTextLength = strlen(buffer);
+	int keyLength = strlen(helperbuffer);
+	
 	// append buffer(the bigger one) with helperbuffer
 	strcat(buffer, helperbuffer);
 
 	// close file_descriptor last time
 	close(file_descriptor);
+	
+	// check lengths recorded above
+	// if wrong should: "terminate, send appropriate error text to stderr, and set the exit value to 1."
+	if(plainTextLength > keyLength){ error("key is too short for plaintext!!!"); }
 	
 	// check for only good chars in key and plain text
 	for( i=0 ; i < strlen(buffer) ; i++ ){
