@@ -74,7 +74,7 @@ int main(int argc, char * argv[])
 		charsRead = recv(establishedConnectionFD, buffer, (BUFFERSIZE-1), 0); // Read the client's message from the socket
 		if (charsRead < 0) error("ERROR reading from socket");
 		// declare our validation and denial messages identically to how client will do so
-		char validateMessage[] = "ThisIsATrevor_ENC_client";
+		char validateMessage[] = "ThisIsATrevor_DEC_client";
 		char deniedMessage[] = "denied";
 		if(strcmp(buffer, validateMessage) != 0){// this means first message was not valid and client is not valid
 			// send back rejection message
