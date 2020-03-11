@@ -23,21 +23,22 @@ void error(const char *msg) { perror(msg); exit(1); } // Error function used for
 int checkForBadChars(char meChar){
 	// return of 9 means char is good, else returns 1 which means char is Bad
 	if(meChar == ' '){ return 9; }// check space
-	elseif(meChar == 'A'){ return 9; }elseif(meChar == 'B'){ return 9; }
-	elseif(meChar == 'C'){ return 9; }elseif(meChar == 'D'){ return 9; }
-	elseif(meChar == 'E'){ return 9; }elseif(meChar == 'F'){ return 9; }
-	elseif(meChar == 'G'){ return 9; }elseif(meChar == 'H'){ return 9; }
-	elseif(meChar == 'I'){ return 9; }elseif(meChar == 'J'){ return 9; }
-	elseif(meChar == 'K'){ return 9; }elseif(meChar == 'L'){ return 9; }
-	elseif(meChar == 'M'){ return 9; }elseif(meChar == 'N'){ return 9; }
-	elseif(meChar == 'O'){ return 9; }elseif(meChar == 'P'){ return 9; }
-	elseif(meChar == 'Q'){ return 9; }elseif(meChar == 'R'){ return 9; }
-	elseif(meChar == 'S'){ return 9; }elseif(meChar == 'T'){ return 9; }
-	elseif(meChar == 'U'){ return 9; }elseif(meChar == 'V'){ return 9; }
-	elseif(meChar == 'W'){ return 9; }elseif(meChar == 'X'){ return 9; }
-	elseif(meChar == 'Y'){ return 9; }elseif(meChar == 'Z'){ return 9; }
-	elseif(meChar == '\n'){ return 9; }// Not a char that will be encrypted but ends every plaintext and key
-	else{ return 1; }
+	if(meChar == 'A'){ return 9; }if(meChar == 'B'){ return 9; }
+	if(meChar == 'C'){ return 9; }if(meChar == 'D'){ return 9; }
+	if(meChar == 'E'){ return 9; }if(meChar == 'F'){ return 9; }
+	if(meChar == 'G'){ return 9; }if(meChar == 'H'){ return 9; }
+	if(meChar == 'I'){ return 9; }if(meChar == 'J'){ return 9; }
+	if(meChar == 'K'){ return 9; }if(meChar == 'L'){ return 9; }
+	if(meChar == 'M'){ return 9; }if(meChar == 'N'){ return 9; }
+	if(meChar == 'O'){ return 9; }if(meChar == 'P'){ return 9; }
+	if(meChar == 'Q'){ return 9; }if(meChar == 'R'){ return 9; }
+	if(meChar == 'S'){ return 9; }if(meChar == 'T'){ return 9; }
+	if(meChar == 'U'){ return 9; }if(meChar == 'V'){ return 9; }
+	if(meChar == 'W'){ return 9; }if(meChar == 'X'){ return 9; }
+	if(meChar == 'Y'){ return 9; }if(meChar == 'Z'){ return 9; }
+	if(meChar == '\n'){ return 9; }// Not a char that will be encrypted but ends every plaintext and key
+	//otherwise not a good char so a bad one so return 1; if reached it
+	return 1;
 }
 
 int main(int argc, char *argv[])
@@ -90,7 +91,7 @@ int main(int argc, char *argv[])
 	if(plainTextLength > keyLength){ error("key is too short for plaintext!!!"); }
 	
 	// check for only good chars in key and plain text
-	for( i=0 ; i < strlen(buffer) ; i++ ){
+	for(int i=0 ; i < strlen(buffer) ; i++ ){
 		// if so it should: "terminate, send appropriate error text to stderr, and set the exit value to 1."
 		if((checkForBadChars(buffer[i])) != 9) { error("Bad char in key OR plaintext"); }// just use error()
 	}
