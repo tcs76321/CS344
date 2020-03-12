@@ -72,12 +72,12 @@ int main(int argc, char * argv[])
 			for( iter = 0 ; iter < 5 ; iter++ )
 			{
 				w = waitpid(-1, &status, WNOHANG);
-				if (w == -1)
-				{
-					perror("wait failed");
-					exit(1);// exits so no more looping obviously
-				}
-				else if (w > 0)// not 0, and positive pid, then wait reaped and w is that PID
+				//if (w == -1)
+				//{
+					//perror("wait failed");
+					//exit(1);// exits so no more looping obviously
+				//}
+				/*else*/ if (w > 0)// not 0, and positive pid, then wait reaped and w is that PID
 				{
 					numbChildren = numbChildren - 1;// this means loop stops
 				}// other wise it is 0 which means did not reap
@@ -232,12 +232,12 @@ int main(int argc, char * argv[])
 			// THIS ENFORCES THE 5 CHILD LIMIT
 			while(numbChildren > 4){ // numbChildren should only ever be 5 if this is true, cant get to 6 ever
 				w = waitpid(-1, &status, WNOHANG);
-				if (w == -1)
-				{
-					perror("wait failed");
-					exit(1);// exits so no more looping obviously
-				}
-				else if (w > 0)// not 0, and positive pid, then wait reaped and w is that PID
+				//if (w == -1)
+				//{
+					//perror("wait failed");
+					//exit(1);// exits so no more looping obviously
+				//}
+				/*else*/ if (w > 0)// not 0, and positive pid, then wait reaped and w is that PID
 				{
 					numbChildren = numbChildren - 1;// this means loop stops
 				}// other wise it is 0 which means did not reap and still 5 children
