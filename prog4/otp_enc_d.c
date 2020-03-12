@@ -34,6 +34,8 @@ int main(int argc, char * argv[])
 	struct sockaddr_in serverAddress, clientAddress;
 	int numbChildren = 0;
 	int status;
+	pid_t spawnPid;
+	pid_t w;
 
 	// Check usage & args
 	if (argc < 2) { fprintf(stderr,"USAGE: %s port\n", argv[0]); exit(1); }
@@ -87,8 +89,6 @@ int main(int argc, char * argv[])
 		if (establishedConnectionFD < 0) error("ERROR on accept");
 		
 		// fork do parent stuff in one branch and child stuff in anothe after error check
-		pid_t spawnPid;
-		pid_t w;
 		
 		// FORK:
 		spawnPid = fork();
